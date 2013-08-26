@@ -220,6 +220,11 @@ protected:
         /* nothing to do here */
     }
 
+    void buildSignatureImpl()
+    {
+        /* nothing to do here */
+    }
+
     void freeIndex()
     {
         /* nothing to do here */

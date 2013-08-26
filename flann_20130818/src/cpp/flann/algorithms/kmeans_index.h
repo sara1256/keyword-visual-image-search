@@ -344,6 +344,11 @@ protected:
         computeClustering(root_, &indices[0], (int)size_, branching_);
     }
 
+    void buildSignatureImpl()
+    {
+        /* nothing to do here */
+    }
+
 private:
 
     struct PointInfo

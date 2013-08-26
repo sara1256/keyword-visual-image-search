@@ -141,6 +141,12 @@ public:
         }
     }
 
+	void buildSignature()
+	{
+		std::cout << "flann.hpp => buildSignature()" << std::endl;
+		nnIndex_->buildSignature();
+	}
+
     void buildIndex(const Matrix<ElementType>& points)
     {
     	nnIndex_->buildIndex(points);

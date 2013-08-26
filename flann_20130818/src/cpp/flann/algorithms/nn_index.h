@@ -131,7 +131,13 @@ public:
 		buildIndexImpl();
 
         size_at_build_ = size_;
+	}
 
+	virtual void buildSignature()
+	{
+		std::cout << "algorithm/nn_index.h => buildSignature()" << std::endl;
+    	// building signature 
+		buildSignatureImpl();
 	}
 
 	/**
@@ -349,6 +355,7 @@ public:
     			}
     		}
     	}
+
     	return count;
     }
 
@@ -698,6 +705,8 @@ protected:
 
     virtual void buildIndexImpl() = 0;
 
+    virtual void buildSignatureImpl() = 0;	// by mojool
+
     size_t id_to_index(size_t id)
     {
     	if (ids_.size()==0) {
@@ -735,6 +744,7 @@ protected:
 		if (removed_) {
 			for (size_t i=0;i<size;++i) {
 				out[i] = ids_[in[i]];
+				std::cout << "in = " << in[i] << ", out = " << out[i] << std::endl;
 			}
 		}
     }

@@ -255,6 +255,13 @@ protected:
         }
     }
 
+    void buildSignatureImpl()
+    {
+        /* nothing to do here */
+		std::cout << "algorithm/kdtree_single_index.h => buildSignatureImpl()" << std::endl;
+    }
+
+
 private:
 
 

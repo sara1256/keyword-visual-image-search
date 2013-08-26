@@ -46,7 +46,7 @@
 #include "flann/util/allocator.h"
 #include "flann/util/random.h"
 #include "flann/util/saving.h"
-
+#include "flann/bloom_filter.hpp"
 
 namespace flann
 {
@@ -271,6 +271,23 @@ protected:
         delete[] var_;
     }
 
+	/**
+	 * Build a signature
+	 */
+	void buildSignatureImpl()
+	{
+        /* nothing to do here */
+		std::cout << "algorithm/kdtree_index.h => buildSignatureImpl()" << std::endl;
+
+		// 1. traverse kd tree, visit a leaf node, create a signature at the leaf node
+		// 2. propagate signature to ancestors
+
+		for (size_t i=0; i<tree_roots_.size(); i++) {
+			buildSignatureDFS(tree_roots_[i]);
+		}
+
+	}
+
     void freeIndex()
     {
     	for (size_t i=0;i<tree_roots_.size();++i) {
@@ -302,6 +319,11 @@ private:
          * The child nodes.
          */
         Node* child1, * child2;
+
+		/**
+		 * Signature (By mojool)
+		 */
+		bloom_filter *signature;
 
         ~Node() {
         	if (child1!=NULL) child1->~Node();
@@ -344,6 +366,46 @@ private:
     typedef Node* NodePtr;
     typedef BranchStruct<NodePtr, DistanceType> BranchSt;
     typedef BranchSt* Branch;
+
+	// written by mojool
+	// return child node's pointer for bottom-up signature building
+	NodePtr buildSignatureDFS(const NodePtr node)
+	{
+		if (node->child1 == NULL && node->child2 == NULL)
+		{
+			bloom_parameters parameters;
+			parameters.projected_element_count = 10000;
+			parameters.false_positive_probability = 1.0 / 10000;
+			parameters.random_seed = 1;
+
+			parameters.compute_optimal_parameters();
+
+			node->signature = new bloom_filter(parameters);
+
+			std::vector<std::string> word_list;
+			word_list.push_back("apple");
+			word_list.push_back("orange");
+			word_list.push_back("lemon");
+			word_list.push_back("melon");
+
+			node->signature->insert(word_list.begin(), word_list.end());
+
+			// vector index
+			int index = node->divfeat;
+			std::cout << "node index =" << node->divfeat << std::endl;
+
+			return node;
+		}
+
+		NodePtr pt1 = buildSignatureDFS(node->child1);
+		NodePtr pt2 = buildSignatureDFS(node->child2);
+
+		//bloom_filter merged_signature = *(pt1->signature) & *(pt2->signature);
+		//node->signature = new bloom_filter(merged_signature);
+		node->signature = new bloom_filter( *(pt1->signature) & *(pt2->signature) );
+
+		return node;
+	}
 
 
     void copyTree(NodePtr& dst, const NodePtr& src)

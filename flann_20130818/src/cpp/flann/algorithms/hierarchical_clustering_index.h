@@ -311,6 +311,12 @@ protected:
         }
     }
 
+    void buildSignatureImpl()
+    {
+        /* nothing to do here */
+    }
+	
+
 private:
 
     struct PointInfo
