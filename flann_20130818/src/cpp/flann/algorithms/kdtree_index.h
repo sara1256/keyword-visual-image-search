@@ -225,7 +225,7 @@ public:
     {
         int maxChecks = searchParams.checks;
         float epsError = 1+searchParams.eps;
-
+		
         if (maxChecks==FLANN_CHECKS_UNLIMITED) {
         	if (removed_) {
         		getExactNeighbors<true>(result, vec, epsError);
@@ -240,6 +240,42 @@ public:
         	}
         	else {
         		getNeighbors<false>(result, vec, maxChecks, epsError);
+        	}
+        }
+    }
+
+
+    /**
+     * Find set of nearest neighbors to vec and keywords. Their indices are stored inside
+     * the result object.
+     *
+     * Params:
+     *     result = the result object in which the indices of the nearest-neighbors are stored
+     *     vec = the vector for which to search the nearest neighbors
+     *     maxCheck = the maximum number of restarts (in a best-bin-first manner)
+     */
+    void findNeighbors2(ResultSet<DistanceType>& result,
+						const ElementType* vec,
+						const std::vector<std::string> keywords,
+						const SearchParams& searchParams) const
+    {
+        int maxChecks = searchParams.checks;
+        float epsError = 1+searchParams.eps;
+		
+        if (maxChecks==FLANN_CHECKS_UNLIMITED) {
+        	if (removed_) {
+        		getExactNeighbors<true>(result, vec, epsError);
+        	}
+        	else {
+        		getExactNeighbors<false>(result, vec, epsError);
+        	}
+        }
+        else {
+        	if (removed_) {
+        		getNeighbors2<true>(result, vec, keywords, maxChecks, epsError);
+        	}
+        	else {
+        		getNeighbors2<false>(result, vec, keywords, maxChecks, epsError);
         	}
         }
     }
@@ -392,7 +428,7 @@ private:
 
 			// vector index
 			int index = node->divfeat;
-			std::cout << "node index =" << node->divfeat << std::endl;
+			//std::cout << "node index =" << node->divfeat << std::endl;
 
 			return node;
 		}
@@ -400,9 +436,7 @@ private:
 		NodePtr pt1 = buildSignatureDFS(node->child1);
 		NodePtr pt2 = buildSignatureDFS(node->child2);
 
-		//bloom_filter merged_signature = *(pt1->signature) & *(pt2->signature);
-		//node->signature = new bloom_filter(merged_signature);
-		node->signature = new bloom_filter( *(pt1->signature) & *(pt2->signature) );
+		node->signature = new bloom_filter( *(pt1->signature) | *(pt2->signature) );
 
 		return node;
 	}
@@ -621,6 +655,37 @@ private:
     }
 
     /**
+     * Added by mojool.
+     */
+    template<bool with_removed>
+    void getNeighbors2(ResultSet<DistanceType>& result,
+						const ElementType* vec,
+						const std::vector<std::string> keywords,
+						int maxCheck,
+						float epsError) const
+    {
+        int i;
+        BranchSt branch;
+
+        int checkCount = 0;
+        Heap<BranchSt>* heap = new Heap<BranchSt>((int)size_);
+        DynamicBitset checked(size_);
+
+        /* Search once through each tree down to root. */
+        for (i = 0; i < trees_; ++i) {
+            searchLevel2<with_removed>(result, vec, tree_roots_[i], keywords, 0, checkCount, maxCheck, epsError, heap, checked);
+        }
+
+        /* Keep searching other branches from heap until finished. */
+        while ( heap->popMin(branch) && (checkCount < maxCheck || !result.full() )) {
+            searchLevel2<with_removed>(result, vec, branch.node, keywords, branch.mindist, checkCount, maxCheck, epsError, heap, checked);
+        }
+
+        delete heap;
+
+    }
+
+    /**
      *  Search starting from a given node of the tree.  Based on any mismatches at
      *  higher levels, all exemplars below this level must have a distance of
      *  at least "mindistsq".
@@ -672,6 +737,65 @@ private:
 
         /* Call recursively to search next level down. */
         searchLevel<with_removed>(result_set, vec, bestChild, mindist, checkCount, maxCheck, epsError, heap, checked);
+    }
+
+    /**
+     *  Added by mojool.
+     */
+    template<bool with_removed>
+    void searchLevel2(ResultSet<DistanceType>& result_set, const ElementType* vec, NodePtr node, const std::vector<std::string> keywords, DistanceType mindist, int& checkCount, int maxCheck,
+                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked) const
+    {
+        if (result_set.worstDist()<mindist) {
+            //			printf("Ignoring branch, too far\n");
+            return;
+        }
+
+
+		std::vector<std::string>::const_iterator iter = node->signature->contains_all(keywords.begin(), keywords.end());
+		if (keywords.end() != iter) {
+            //			printf("Ignoring branch, keyword not found\n");
+			return;
+		}
+
+        /* If this is a leaf node, then do check and return. */
+        if ((node->child1 == NULL)&&(node->child2 == NULL)) {
+            int index = node->divfeat;
+            if (with_removed) {
+            	if (removed_points_.test(index)) return;
+            }
+            /*  Do not check same node more than once when searching multiple trees. */
+            if ( checked.test(index) || ((checkCount>=maxCheck)&& result_set.full()) ) return;
+            checked.set(index);
+            checkCount++;
+
+            DistanceType dist = distance_(node->point, vec, veclen_);
+            result_set.addPoint(dist,index);
+            return;
+        }
+
+        /* Which child branch should be taken first? */
+        ElementType val = vec[node->divfeat];
+        DistanceType diff = val - node->divval;
+        NodePtr bestChild = (diff < 0) ? node->child1 : node->child2;
+        NodePtr otherChild = (diff < 0) ? node->child2 : node->child1;
+
+        /* Create a branch record for the branch not taken.  Add distance
+            of this feature boundary (we don't attempt to correct for any
+            use of this feature in a parent node, which is unlikely to
+            happen and would have only a small effect).  Don't bother
+            adding more branches to heap after halfway point, as cost of
+            adding exceeds their value.
+         */
+
+        DistanceType new_distsq = mindist + distance_.accum_dist(val, node->divval, node->divfeat);
+        //		if (2 * checkCount < maxCheck  ||  !result.full()) {
+        if ((new_distsq*epsError < result_set.worstDist())||  !result_set.full()) {
+            heap->insert( BranchSt(otherChild, new_distsq) );
+        }
+
+        /* Call recursively to search next level down. */
+        searchLevel2<with_removed>(result_set, vec, bestChild, keywords, mindist, checkCount, maxCheck, epsError, heap, checked);
     }
 
     /**

@@ -208,6 +208,14 @@ public:
         kdtree_index_->findNeighbors(result, vec, searchParams);
     }
 
+    void findNeighbors2(ResultSet<DistanceType>& result,
+						const ElementType* vec,
+						const std::vector<std::string> keywords,
+						const SearchParams& searchParams) const
+    {
+		assert(false);
+	}
+
 protected:
     void swap(CompositeIndex& other)
     {

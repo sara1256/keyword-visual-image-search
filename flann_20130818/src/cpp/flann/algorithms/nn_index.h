@@ -135,8 +135,7 @@ public:
 
 	virtual void buildSignature()
 	{
-		std::cout << "algorithm/nn_index.h => buildSignature()" << std::endl;
-    	// building signature 
+    	// build a signature 
 		buildSignatureImpl();
 	}
 
@@ -295,7 +294,6 @@ public:
     	ar & removed_count_;
     }
 
-
     /**
      * @brief Perform k-nearest neighbor search
      * @param[in] queries The query points for which to find the nearest neighbors
@@ -386,6 +384,98 @@ public:
     	return result;
     }
 
+    /**
+     * @brief Perform k-nearest neighbor search with keywords query
+     * @param[in] queries The query points for which to find the nearest neighbors
+     * @param[out] indices The indices of the nearest neighbors found
+     * @param[out] dists Distances to the nearest neighbors found
+     * @param[in] knn Number of nearest neighbors to return
+     * @param[in] params Search parameters
+     */
+    virtual int knnSearch2(const Matrix<ElementType>& queries,
+			std::vector<std::string> keywords,
+    		Matrix<size_t>& indices,
+    		Matrix<DistanceType>& dists,
+    		size_t knn,
+    		const SearchParams& params) const
+    {
+    	assert(queries.cols == veclen());
+    	assert(indices.rows >= queries.rows);
+    	assert(dists.rows >= queries.rows);
+    	assert(indices.cols >= knn);
+    	assert(dists.cols >= knn);
+    	bool use_heap;
+
+    	if (params.use_heap==FLANN_Undefined) {
+    		use_heap = (knn>KNN_HEAP_THRESHOLD)?true:false;
+    	}
+    	else {
+    		use_heap = (params.use_heap==FLANN_True)?true:false;
+    	}
+    	int count = 0;
+
+    	if (use_heap) {
+#pragma omp parallel num_threads(params.cores)
+    		{
+    			KNNResultSet2<DistanceType> resultSet(knn);
+#pragma omp for schedule(static) reduction(+:count)
+    			for (int i = 0; i < (int)queries.rows; i++) {
+    				resultSet.clear();
+    				findNeighbors2(resultSet, queries[i], keywords, params);
+    				size_t n = std::min(resultSet.size(), knn);
+    				resultSet.copy(indices[i], dists[i], n, params.sorted);
+    				indices_to_ids(indices[i], indices[i], n);
+    				count += n;
+    			}
+    		}
+    	}
+    	else {
+#pragma omp parallel num_threads(params.cores)
+    		{
+    			KNNSimpleResultSet<DistanceType> resultSet(knn);
+#pragma omp for schedule(static) reduction(+:count)
+    			for (int i = 0; i < (int)queries.rows; i++) {
+    				resultSet.clear();
+    				findNeighbors2(resultSet, queries[i], keywords, params);
+    				size_t n = std::min(resultSet.size(), knn);
+    				resultSet.copy(indices[i], dists[i], n, params.sorted);
+    				indices_to_ids(indices[i], indices[i], n);
+    				count += n;
+    			}
+    		}
+    	}
+
+    	return count;
+    }
+
+    /**
+     *
+     * @param queries
+     * @param keywords
+     * @param indices
+     * @param dists
+     * @param knn
+     * @param params
+     * @return
+     */
+    int knnSearch2(const Matrix<ElementType>& queries,
+								 std::vector<std::string> keywords,
+                                 Matrix<int>& indices,
+                                 Matrix<DistanceType>& dists,
+                                 size_t knn,
+                           const SearchParams& params) const
+    {
+    	flann::Matrix<size_t> indices_(new size_t[indices.rows*indices.cols], indices.rows, indices.cols);
+    	int result = knnSearch2(queries, keywords, indices_, dists, knn, params);
+
+    	for (size_t i=0;i<indices.rows;++i) {
+    		for (size_t j=0;j<indices.cols;++j) {
+    			indices[i][j] = indices_[i][j];
+    		}
+    	}
+        delete[] indices_.ptr();
+    	return result;
+    }
 
     /**
      * @brief Perform k-nearest neighbor search
@@ -698,6 +788,7 @@ public:
 
 
     virtual void findNeighbors(ResultSet<DistanceType>& result, const ElementType* vec, const SearchParams& searchParams) const = 0;
+    virtual void findNeighbors2(ResultSet<DistanceType>& result, const ElementType* vec, const std::vector<std::string> keywords, const SearchParams& searchParams) const = 0;
 
 protected:
 
@@ -744,7 +835,6 @@ protected:
 		if (removed_) {
 			for (size_t i=0;i<size;++i) {
 				out[i] = ids_[in[i]];
-				std::cout << "in = " << in[i] << ", out = " << out[i] << std::endl;
 			}
 		}
     }

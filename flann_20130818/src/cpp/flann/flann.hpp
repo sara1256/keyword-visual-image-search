@@ -249,6 +249,24 @@ public:
     }
 
     /**
+     * \brief Perform k-nearest neighbor search with keyword query
+     * \param[in] queries The query points for which to find the nearest neighbors
+     * \param[out] indices The indices of the nearest neighbors found
+     * \param[out] dists Distances to the nearest neighbors found
+     * \param[in] knn Number of nearest neighbors to return
+     * \param[in] params Search parameters
+     */
+    int knnSearch2(const Matrix<ElementType>& queries,
+								 std::vector<std::string> keywords,
+                                 Matrix<int>& indices,
+                                 Matrix<DistanceType>& dists,
+                                 size_t knn,
+                           const SearchParams& params) const
+    {
+    	return nnIndex_->knnSearch2(queries, keywords, indices, dists, knn, params);
+    }
+
+    /**
      *
      * @param queries
      * @param indices

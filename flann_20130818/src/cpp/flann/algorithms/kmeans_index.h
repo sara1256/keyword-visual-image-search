@@ -291,6 +291,13 @@ public:
 
     }
 
+    void findNeighbors2(ResultSet<DistanceType>& result,
+						const ElementType* vec,
+						const std::vector<std::string> keywords,
+						const SearchParams& searchParams) const
+    {
+	}
+
     /**
      * Clustering function that takes a cut in the hierarchical k-means
      * tree and return the clusters centers of that clustering.
