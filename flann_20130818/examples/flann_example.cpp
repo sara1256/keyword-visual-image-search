@@ -4,6 +4,9 @@
 
 #include <stdio.h>
 
+//#include <flann/keyword/porter2_stemmer.h>
+#include <porter2_stemmer.h>
+
 using namespace flann;
 
 int main(int argc, char** argv)
@@ -33,7 +36,7 @@ int main(int argc, char** argv)
     Index<L2<float> > index(dataset, flann::KDTreeIndexParams(4));
     index.buildIndex();
 	index.buildSignature();
-	//index.save("index.idx");
+	index.save("index.idx");
 
 	//Index<L2<float> > index(dataset, flann::SavedIndexParams("index.idx"));
 
@@ -63,6 +66,9 @@ int main(int argc, char** argv)
     delete[] query.ptr();
     delete[] indices.ptr();
     delete[] dists.ptr();
+
+	for (int k=0; k<keywords.size(); k++)
+		std::cout << Porter2Stemmer::stem(keywords[k]) << std::endl;
     
     return 0;
 }
