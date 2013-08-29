@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 
-//#include <flann/keyword/porter2_stemmer.h>
 #include <porter2_stemmer.h>
 
 using namespace flann;
