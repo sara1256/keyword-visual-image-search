@@ -15,5 +15,5 @@ How To Compile
 3. make flann_cpp
 4. move to porter2_stemmer directory
 5. make lib (for static library)
-6. move to example directory
-7. g++ -std=c++0x flann_example.cpp -L/usr/lib -lhdf5 -L../build/lib -lflann_cpp -L../../porter2_stemmer -lporter2_stemmer -I../src/cpp -I../../porter2_stemmer
+6. move to hybrid_index directory
+7. run make or run g++ -std=c++0x flann_example.cpp -L/usr/lib -lhdf5 -L../flann/build/lib -lflann_cpp -L../porter2_stemmer -lporter2_stemmer -I../flann/src/cpp -I../porter2_stemmer
