@@ -1,0 +1,14 @@
+dataset_name: name-of-dataset-defined-by-user
+path:
+ base: /media/mojool1984/research_storage/mirflickr25k_dataset/working/
+datasets:
+ dataset_01:
+  images_folder: images01/
+  siftgeos_folder: features/siftgeos01/
+  vlads_folder: features/vlads01/
+ dataset_02:
+  image_folder: images02/
+  feature_folder: features/siftgeos02/
+  vlads_folder: features/vlads02/
+
+# note that sub-dataset can be defined multiple times

@@ -1,0 +1,6 @@
+The following dataset can be downloaded from
+http://people.rennes.inria.fr/Herve.Jegou/projects/aggregating.html
+
+- clust_k64.fvecs
+- pca_proj_matrix_vladk64_flickr1Mstar.fvecs
+- vlad_k64_holidays.fvecs

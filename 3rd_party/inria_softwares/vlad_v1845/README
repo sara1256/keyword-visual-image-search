@@ -1,0 +1,79 @@
+What is it?
+===========
+
+This is a Matlab package that we provide to reproduce the results 
+of our CVPR paper (paper homepage: http://lear.inrialpes.fr/pubs/2010/JDSP10)
+
+@InProceedings{JDSP10,
+  author       = "Herv\'e J\'egou and Matthijs Douze and Cordelia Schmid and Patrick P\'erez",
+  title        = "Aggregating local descriptors into a compact image representation",
+  booktitle    = "IEEE Conference on Computer Vision \& Pattern Recognition",
+  month        = "jun",
+  year         = "2010",
+  url          = "http://lear.inrialpes.fr/pubs/2010/JDSP10"
+}
+
+
+Prerequisites
+=============
+
+The prerequisites are a working version of Matlab/mex. We have tested
+the software with relatively recent versions (R2009b, R2010a). We have
+made the package run with the open-source software Octave (3.2.3). The
+installation procedure differs a bit, but skilled Octave users should
+be able to make the mex-files of Yael work with octave.
+
+
+
+Installation
+=============
+
+These instructions are for Linux and MacOS X (just take care for
+64-bits Matlab to use "long" instead of "int" for sgemm calls). This
+package is not supported for Windows. Sorry.
+
+The commands below should be lanched from the directory where you
+unzipped this package.
+
+1) Download the Yael library and the pqcodes package. 
+
+The current package library has been tested with version SVN_v62 of the 
+Yael library, but forward compatibility should be preserved. 
+The Yael library can be obtained from the website: 
+https://gforge.inria.fr/frs/?group_id=2151
+
+The pqcodes package is available from the software webpage of Herve Jegou, 
+and can be retrieved as follows:
+> wget http://www.irisa.fr/texmex/people/jegou/src/pqsearch_1830.tar.gz
+
+
+2) Untar the lib and compile its Matlab interface (in subdirectory yael). 
+> tar xvzf yael_v62.tar.gz
+> rm yael_v62.tar.gz
+> cd yael
+> ./configure.sh
+> cd matlab
+> make
+> cd ../..
+
+If this does not work on your platform, please take a look at the README 
+file and the Yael getting started manual. 
+
+
+3) Compile additional Mex-file: 
+> tar xvzf pqsearch_1830.tar.gz
+> rm pqsearch_1830.tar.gz
+> mex siftgeo_read_fast.c
+> cd pqcodes
+> mex sumidxtab.c
+> cd ..
+
+
+4) Get the SIFT descriptors associated with the Holidays database
+> wget http://pascal.inrialpes.fr/data/holidays/siftgeo.tar.gz
+> tar xvzf siftgeo.tar.gz
+> rm siftgeo.tar.gz
+
+5) Launch the test program in matlab:
+>> test
+ 
