@@ -27,6 +27,20 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+#include <cstdio>
+#include <fstream>
+#include <iterator>
+#include <deque>
+#include <set>
+
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/shared_array.hpp>
+#include <boost/serialization/vector.hpp>
+
 
 static const std::size_t bits_per_char = 0x08;    // 8 bits in 1 char(unsigned)
 static const unsigned char bit_mask[bits_per_char] = {
@@ -158,6 +172,48 @@ public:
 class bloom_filter
 {
 protected:
+
+   friend class boost::serialization::access;
+   friend class bloom_filter_manager;
+
+   template<class Archive>
+   void save(Archive &ar, const unsigned int version) const
+   {
+      ar & salt_count_;
+      ar & table_size_;
+      ar & raw_table_size_;
+      ar & projected_element_count_;
+      ar & inserted_element_count_;
+      ar & random_seed_;
+      ar & desired_false_positive_probability_;
+
+      for (int k=0; k<salt_.size(); k++) ar & salt_[k];
+      for (int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
+   }
+
+   template<class Archive>
+   void load(Archive &ar, const unsigned int version)
+   {
+      ar & salt_count_;
+      ar & table_size_;
+      ar & raw_table_size_;
+      ar & projected_element_count_;
+      ar & inserted_element_count_;
+      ar & random_seed_;
+      ar & desired_false_positive_probability_;
+
+      bloom_type b;
+      for (int k=0; k<salt_count_; k++)
+      {
+         ar & b;
+         salt_.push_back(b);
+      }
+
+      bit_table_ = new cell_type[static_cast<std::size_t>(raw_table_size_)];
+      for (int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
+   }
+
+   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
    typedef unsigned int bloom_type;
    typedef unsigned char cell_type;
@@ -661,6 +717,69 @@ private:
    }
 
    std::vector<unsigned long long int> size_list;
+};
+
+
+
+class bloom_filter_manager
+{
+private:
+	friend class boost::serialization::access;
+
+	std::vector<bloom_filter *> filters;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & filters;
+	}
+
+public:
+	bloom_filter_manager() { }
+
+	void append(const bloom_filter &f)
+	{
+		filters.push_back( new bloom_filter(f) );
+	}
+
+	void save(const char *filename)
+	{
+		std::ofstream ofs(filename);
+		boost::archive::binary_oarchive oa(ofs);
+		oa << *this;
+	}
+
+	void load(const char *filename)
+	{
+		std::ifstream ifs(filename);
+		boost::archive::binary_iarchive ia(ifs);
+		ia >> *this;
+	}
+
+	void test()
+	{
+		std::vector<std::string> keywords;
+		keywords.push_back("apple");
+		keywords.push_back("banana");
+
+		std::cout << "number of filters: " << filters.size() << std::endl;
+
+		for (int k=0; k<filters.size(); k++)
+		{
+			std::vector<std::string>::iterator iter = filters[k]->contains_all(keywords.begin(), keywords.end());
+
+            std::cout << "\nsalt_count_: " << filters[k]->salt_count_ << std::endl;;
+            std::cout << "table_size_: " << filters[k]->table_size_<< std::endl;;
+            std::cout << "raw_table_size_: " << filters[k]->raw_table_size_<< std::endl;;
+            std::cout << "projected_element_count_: " << filters[k]->projected_element_count_<< std::endl;;
+            std::cout << "inserted_element_count_: " << filters[k]->inserted_element_count_<< std::endl;;
+			std::cout << "random_seed_: " << filters[k]->random_seed_<< std::endl;;
+			std::cout << "desired_false_positive_probability_: " << filters[k]->desired_false_positive_probability_<< std::endl;;
+
+			if (keywords.end() != iter) std::cout << "filter: key " << (*iter) << " not found in bloom filter." << std::endl;
+			else std::cout << "filter: key exists." << std::endl;
+		} 
+	}
 };
 
 #endif

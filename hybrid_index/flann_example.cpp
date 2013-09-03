@@ -31,17 +31,20 @@ int main(int argc, char** argv)
     Matrix<int> indices(new int[query.rows*nn], query.rows, nn);
     Matrix<float> dists(new float[query.rows*nn], query.rows, nn);
 
+	/*
     // construct an randomized kd-tree index using 4 kd-trees
     Index<L2<float> > index(dataset, flann::KDTreeIndexParams(4));
     index.buildIndex();
 	index.buildSignature();
 	index.save("index.idx");
+	*/
 
-	//Index<L2<float> > index(dataset, flann::SavedIndexParams("index.idx"));
+	Index<L2<float> > index(dataset, flann::SavedIndexParams("index.idx"));
+	index.buildSignature();
 
     // do a knn search, using 128 checks
-    //int count = index.knnSearch(query, indices, dists, nn, flann::SearchParams(128));
-	//std::cout << "count = " << count << std::endl;
+    int count = index.knnSearch(query, indices, dists, nn, flann::SearchParams(128));
+	std::cout << "count = " << count << std::endl;
 
 	// do a knn search with keyword query
 	std::vector<std::string> keywords;

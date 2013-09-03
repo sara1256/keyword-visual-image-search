@@ -6,6 +6,8 @@ datasets:
   images_folder: images/
   siftgeos_folder: features/siftgeos/
   vlads_folder: features/vlads/
+  tags_folder: meta/tags/
+  stemmed_tags_folder: meta/tags_stemmed/
 # dataset_02:
 #  image_folder: images/
 #  feature_folder: features/siftgeos

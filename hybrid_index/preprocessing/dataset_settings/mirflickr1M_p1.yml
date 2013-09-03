@@ -1,0 +1,154 @@
+dataset_name: mirflickr1M
+path:
+ base: /media/mojool1984/research_storage/mirflickr1M_dataset/working/
+datasets:
+ dataset_001:
+  images_folder: images/1/
+  siftgeos_folder: features/siftgeos/1/
+  vlads_folder: features/vlads/1/
+  tags_folder: meta/tags/1/
+  stemmed_tags_folder: meta/tags_stemmed/1/
+ dataset_002:
+  images_folder: images/2/
+  siftgeos_folder: features/siftgeos/2/
+  vlads_folder: features/vlads/2/
+  tags_folder: meta/tags/2/
+  stemmed_tags_folder: meta/tags_stemmed/2/
+ dataset_003:
+  images_folder: images/3/
+  siftgeos_folder: features/siftgeos/3/
+  vlads_folder: features/vlads/3/
+  tags_folder: meta/tags/3/
+  stemmed_tags_folder: meta/tags_stemmed/3/
+ dataset_004:
+  images_folder: images/4/
+  siftgeos_folder: features/siftgeos/4/
+  vlads_folder: features/vlads/4/
+  tags_folder: meta/tags/4/
+  stemmed_tags_folder: meta/tags_stemmed/4/
+ dataset_005:
+  images_folder: images/5/
+  siftgeos_folder: features/siftgeos/5/
+  vlads_folder: features/vlads/5/
+  tags_folder: meta/tags/5/
+  stemmed_tags_folder: meta/tags_stemmed/5/
+ dataset_006:
+  images_folder: images/6/
+  siftgeos_folder: features/siftgeos/6/
+  vlads_folder: features/vlads/6/
+  tags_folder: meta/tags/6/
+  stemmed_tags_folder: meta/tags_stemmed/6/
+ dataset_007:
+  images_folder: images/7/
+  siftgeos_folder: features/siftgeos/7/
+  vlads_folder: features/vlads/7/
+  tags_folder: meta/tags/7/
+  stemmed_tags_folder: meta/tags_stemmed/7/
+ dataset_008:
+  images_folder: images/8/
+  siftgeos_folder: features/siftgeos/8/
+  vlads_folder: features/vlads/8/
+  tags_folder: meta/tags/8/
+  stemmed_tags_folder: meta/tags_stemmed/8/
+ dataset_009:
+  images_folder: images/9/
+  siftgeos_folder: features/siftgeos/9/
+  vlads_folder: features/vlads/9/
+  tags_folder: meta/tags/9/
+  stemmed_tags_folder: meta/tags_stemmed/9/
+ dataset_010:
+  images_folder: images/10/
+  siftgeos_folder: features/siftgeos/10/
+  vlads_folder: features/vlads/10/
+  tags_folder: meta/tags/10/
+  stemmed_tags_folder: meta/tags_stemmed/10/
+ dataset_011:
+  images_folder: images/11/
+  siftgeos_folder: features/siftgeos/11/
+  vlads_folder: features/vlads/11/
+  tags_folder: meta/tags/11/
+  stemmed_tags_folder: meta/tags_stemmed/11/
+ dataset_012:
+  images_folder: images/12/
+  siftgeos_folder: features/siftgeos/12/
+  vlads_folder: features/vlads/12/
+  tags_folder: meta/tags/12/
+  stemmed_tags_folder: meta/tags_stemmed/12/
+ dataset_013:
+  images_folder: images/13/
+  siftgeos_folder: features/siftgeos/13/
+  vlads_folder: features/vlads/13/
+  tags_folder: meta/tags/13/
+  stemmed_tags_folder: meta/tags_stemmed/13/
+ dataset_014:
+  images_folder: images/14/
+  siftgeos_folder: features/siftgeos/14/
+  vlads_folder: features/vlads/14/
+  tags_folder: meta/tags/14/
+  stemmed_tags_folder: meta/tags_stemmed/14/
+ dataset_015:
+  images_folder: images/15/
+  siftgeos_folder: features/siftgeos/15/
+  vlads_folder: features/vlads/15/
+  tags_folder: meta/tags/15/
+  stemmed_tags_folder: meta/tags_stemmed/15/
+ dataset_016:
+  images_folder: images/16/
+  siftgeos_folder: features/siftgeos/16/
+  vlads_folder: features/vlads/16/
+  tags_folder: meta/tags/16/
+  stemmed_tags_folder: meta/tags_stemmed/16/
+ dataset_017:
+  images_folder: images/17/
+  siftgeos_folder: features/siftgeos/17/
+  vlads_folder: features/vlads/17/
+  tags_folder: meta/tags/17/
+  stemmed_tags_folder: meta/tags_stemmed/17/
+ dataset_018:
+  images_folder: images/18/
+  siftgeos_folder: features/siftgeos/18/
+  vlads_folder: features/vlads/18/
+  tags_folder: meta/tags/18/
+  stemmed_tags_folder: meta/tags_stemmed/18/
+ dataset_019:
+  images_folder: images/19/
+  siftgeos_folder: features/siftgeos/19/
+  vlads_folder: features/vlads/19/
+  tags_folder: meta/tags/19/
+  stemmed_tags_folder: meta/tags_stemmed/19/
+ dataset_020:
+  images_folder: images/20/
+  siftgeos_folder: features/siftgeos/20/
+  vlads_folder: features/vlads/20/
+  tags_folder: meta/tags/20/
+  stemmed_tags_folder: meta/tags_stemmed/20/
+ dataset_021:
+  images_folder: images/21/
+  siftgeos_folder: features/siftgeos/21/
+  vlads_folder: features/vlads/21/
+  tags_folder: meta/tags/21/
+  stemmed_tags_folder: meta/tags_stemmed/21/
+ dataset_022:
+  images_folder: images/22/
+  siftgeos_folder: features/siftgeos/22/
+  vlads_folder: features/vlads/22/
+  tags_folder: meta/tags/22/
+  stemmed_tags_folder: meta/tags_stemmed/22/
+ dataset_023:
+  images_folder: images/23/
+  siftgeos_folder: features/siftgeos/23/
+  vlads_folder: features/vlads/23/
+  tags_folder: meta/tags/23/
+  stemmed_tags_folder: meta/tags_stemmed/23/
+ dataset_024:
+  images_folder: images/24/
+  siftgeos_folder: features/siftgeos/24/
+  vlads_folder: features/vlads/24/
+  tags_folder: meta/tags/24/
+  stemmed_tags_folder: meta/tags_stemmed/24/
+ dataset_025:
+  images_folder: images/25/
+  siftgeos_folder: features/siftgeos/25/
+  vlads_folder: features/vlads/25/
+  tags_folder: meta/tags/25/
+  stemmed_tags_folder: meta/tags_stemmed/25/

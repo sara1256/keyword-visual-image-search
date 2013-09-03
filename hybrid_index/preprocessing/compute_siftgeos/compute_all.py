@@ -28,7 +28,7 @@ def compute_siftgeo(image_folder_path, feature_folder_path):
 
 		if os.path.isfile(image_path):
 			# split filename-string into filename and its extension (i.e. .jpg, .png)
-			image_filename, image_file_extension = os.path.splitext(image_name)
+			#image_filename, image_file_extension = os.path.splitext(image_name)
 
 			os.system( CMD_EXTRACTOR_DISTRACTORS % (image_path, feature_folder_path) )
 
@@ -57,8 +57,9 @@ if __name__ == '__main__':
 			raise IOError
 
 		if not os.path.exists(dataset_feature_folder):
-			print('[Error] Feature folder', dataset_feature_folder, 'does not exist')
-			raise IOError
+			os.mkdir( dataset_feature_folder )
+			#print('[Error] Feature folder', dataset_feature_folder, 'does not exist')
+			#raise IOError
 
 		print( '\nProcessing', dataset_image_folder, 'folder.')
 
