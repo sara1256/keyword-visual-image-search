@@ -1,0 +1,6 @@
+==== Processing Orders ====
+
+1. make a dataset setting file at dataset_settings folder
+2. run compute_siftgeo
+3. run compute_vlads
+4. run stemming_tags

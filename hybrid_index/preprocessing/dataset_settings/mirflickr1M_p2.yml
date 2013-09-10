@@ -1,7 +1,14 @@
-dataset_name: mirflickr1M
+dataset_name: mirflickr1M_p2
 path:
  base: /media/mojool1984/research_storage/mirflickr1M_dataset/working/
+ integrated: integrated/
 datasets:
+ dataset_025:
+  images_folder: images/25/
+  siftgeos_folder: features/siftgeos/25/
+  vlads_folder: features/vlads/25/
+  tags_folder: meta/tags/25/
+  stemmed_tags_folder: meta/tags_stemmed/25/
  dataset_026:
   images_folder: images/26/
   siftgeos_folder: features/siftgeos/26/
@@ -146,9 +153,3 @@ datasets:
   vlads_folder: features/vlads/49/
   tags_folder: meta/tags/49/
   stemmed_tags_folder: meta/tags_stemmed/49/
- dataset_050:
-  images_folder: images/50/
-  siftgeos_folder: features/siftgeos/50/
-  vlads_folder: features/vlads/50/
-  tags_folder: meta/tags/50/
-  stemmed_tags_folder: meta/tags_stemmed/50/

@@ -1,6 +1,7 @@
 dataset_name: mirflickr25k
 path:
  base: /media/mojool1984/research_storage/mirflickr25k_dataset/working/
+ integrated: integrated/
 datasets:
  dataset_01:
   images_folder: images/
@@ -8,7 +9,3 @@ datasets:
   vlads_folder: features/vlads/
   tags_folder: meta/tags/
   stemmed_tags_folder: meta/tags_stemmed/
-# dataset_02:
-#  image_folder: images/
-#  feature_folder: features/siftgeos
-#  vlads_folder: features/vlads/

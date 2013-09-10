@@ -1,6 +1,7 @@
 dataset_name: name-of-dataset-defined-by-user
 path:
  base: /media/mojool1984/research_storage/mirflickr25k_dataset/working/
+ integrated: integrated/
 datasets:
  dataset_01:
   images_folder: images01/

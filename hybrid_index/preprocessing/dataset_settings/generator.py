@@ -41,6 +41,7 @@ if multiple == 'yes':
 	yml += 'dataset_name: %s\n' % ( global_meta['dataset_name'] )
 	yml += 'path:\n'
 	yml += ' base: %s\n' % ( global_meta['path_base'] )
+	yml += ' integrated: integrated/\n'
 	yml += 'datasets:\n'
 
 	for k in range(from_no, end_no+1):
