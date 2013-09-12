@@ -187,8 +187,8 @@ protected:
       ar & random_seed_;
       ar & desired_false_positive_probability_;
 
-      for (int k=0; k<salt_.size(); k++) ar & salt_[k];
-      for (int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
+      for (unsigned int k=0; k<salt_.size(); k++) ar & salt_[k];
+      for (unsigned int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
    }
 
    template<class Archive>
@@ -203,14 +203,14 @@ protected:
       ar & desired_false_positive_probability_;
 
       bloom_type b;
-      for (int k=0; k<salt_count_; k++)
+      for (unsigned int k=0; k<salt_count_; k++)
       {
          ar & b;
          salt_.push_back(b);
       }
 
       bit_table_ = new cell_type[static_cast<std::size_t>(raw_table_size_)];
-      for (int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
+      for (unsigned int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
    }
 
    BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -764,7 +764,7 @@ public:
 
 		std::cout << "number of filters: " << filters.size() << std::endl;
 
-		for (int k=0; k<filters.size(); k++)
+		for (unsigned int k=0; k<filters.size(); k++)
 		{
 			std::vector<std::string>::iterator iter = filters[k]->contains_all(keywords.begin(), keywords.end());
 

@@ -318,6 +318,12 @@ protected:
 		// 1. traverse kd tree, visit a leaf node, create a signature at the leaf node
 		// 2. propagate signature to ancestors
 
+		std::string signature_filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags.dat";
+
+		std::cout << "Loading signatures : " << signature_filename << " ... ";
+		leaf_signatures.load(signature_filename.c_str());
+		std::cout << "Done." << std::endl;
+
 		for (size_t i=0; i<tree_roots_.size(); i++) {
 			buildSignatureDFS(tree_roots_[i]);
 		}
@@ -335,6 +341,9 @@ protected:
 
 
 private:
+    /*--------------------- Bloom Filters --------------------------*/
+	bloom_filter_manager leaf_signatures;
+	bloom_filter_manager nonleaf_signatures;
 
     /*--------------------- Internal Data Structures --------------------------*/
     struct Node
@@ -359,7 +368,8 @@ private:
 		/**
 		 * Signature (By mojool)
 		 */
-		bloom_filter *signature;
+		bloom_filter *signature;	// to be deprecated
+		int signature_id;
 
         ~Node() {
         	if (child1!=NULL) child1->~Node();
@@ -409,6 +419,7 @@ private:
 	{
 		if (node->child1 == NULL && node->child2 == NULL)
 		{
+			/*
 			bloom_parameters parameters;
 			parameters.projected_element_count = 10000;
 			parameters.false_positive_probability = 1.0 / 10000;
@@ -425,10 +436,15 @@ private:
 			word_list.push_back("melon");
 
 			node->signature->insert(word_list.begin(), word_list.end());
+			*/
 
+			/**
+			  * added by mojool
+			  */
+			node->signature_id = node->divfeat;
 			// vector index
 			int index = node->divfeat;
-			//std::cout << "node index =" << node->divfeat << std::endl;
+			//std::cout << "leaf node index =" << node->divfeat << std::endl;
 
 			return node;
 		}
@@ -436,7 +452,7 @@ private:
 		NodePtr pt1 = buildSignatureDFS(node->child1);
 		NodePtr pt2 = buildSignatureDFS(node->child2);
 
-		node->signature = new bloom_filter( *(pt1->signature) | *(pt2->signature) );
+		//node->signature = new bloom_filter( *(pt1->signature) | *(pt2->signature) );
 
 		return node;
 	}

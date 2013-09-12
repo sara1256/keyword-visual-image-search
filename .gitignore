@@ -3,3 +3,4 @@ flann_20130818/examples/*.hdf5
 flann_20130818/examples/*.out
 porter2_stemmer/*.o
 porter2_stemmer/*.a
+3rd_party/inria_softwares/vlad_v1845/data/*.fvecs
