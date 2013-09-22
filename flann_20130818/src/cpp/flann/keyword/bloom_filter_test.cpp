@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "bloom_filter.hpp"
+#include "bloom_filter_manager.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -44,6 +44,21 @@ int main(int argc, char* argv[])
 	bloom_filter_manager mgr_loaded;
 	mgr_loaded.load(filename.c_str());
 	mgr_loaded.test();
+
+	bloom_filter bf = mgr_loaded[1];
+
+	/*
+	std::cout << "\nsalt_count_: " << bf.salt_count_ << std::endl;;
+	std::cout << "table_size_: " << bf.table_size_<< std::endl;;
+	std::cout << "raw_table_size_: " << filters[k]->raw_table_size_<< std::endl;;
+	std::cout << "projected_element_count_: " << filters[k]->projected_element_count_<< std::endl;;
+	std::cout << "inserted_element_count_: " << filters[k]->inserted_element_count_<< std::endl;;
+	std::cout << "random_seed_: " << filters[k]->random_seed_<< std::endl;;
+	std::cout << "desired_false_positive_probability_: " << filters[k]->desired_false_positive_probability_<< std::endl;;
+
+	if (keywords.end() != iter) std::cout << "filter: key " << (*iter) << " not found in bloom filter." << std::endl;
+	else std::cout << "filter: key exists." << std::endl;
+	*/
 
 	return 0;
 }

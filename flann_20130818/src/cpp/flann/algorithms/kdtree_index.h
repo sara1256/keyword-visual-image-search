@@ -46,7 +46,7 @@
 #include "flann/util/allocator.h"
 #include "flann/util/random.h"
 #include "flann/util/saving.h"
-#include "flann/bloom_filter.hpp"
+#include "flann/keyword/bloom_filter_manager.hpp"
 
 namespace flann
 {
@@ -321,8 +321,10 @@ protected:
 		std::string signature_filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags.dat";
 
 		std::cout << "Loading signatures : " << signature_filename << " ... ";
+		std::cout.flush();
 		leaf_signatures.load(signature_filename.c_str());
 		std::cout << "Done." << std::endl;
+		std::cout.flush();
 
 		for (size_t i=0; i<tree_roots_.size(); i++) {
 			buildSignatureDFS(tree_roots_[i]);
@@ -442,6 +444,9 @@ private:
 			  * added by mojool
 			  */
 			node->signature_id = node->divfeat;
+			//bloom_filter bf = this->leaf_signatures[node->signature_id];
+			//node->signature = new bloom_filter(bf);
+			node->signature = NULL;
 			// vector index
 			int index = node->divfeat;
 			//std::cout << "leaf node index =" << node->divfeat << std::endl;
@@ -452,7 +457,16 @@ private:
 		NodePtr pt1 = buildSignatureDFS(node->child1);
 		NodePtr pt2 = buildSignatureDFS(node->child2);
 
+		bloom_filter *sig1, *sig2;
+
+		if (pt1->signature == NULL) sig1 = &(this->leaf_signatures[pt1->signature_id]);
+		else sig1 = pt1->signature;
+
+		if (pt2->signature == NULL) sig2 = &(this->leaf_signatures[pt2->signature_id]);
+		else sig2 = pt2->signature;
+
 		//node->signature = new bloom_filter( *(pt1->signature) | *(pt2->signature) );
+		node->signature = new bloom_filter( *sig1 | *sig2 );
 
 		return node;
 	}

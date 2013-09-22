@@ -12,7 +12,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include <bloom_filter.hpp>
+#include <keyword/bloom_filter.hpp>
 
 namespace bfs = boost::filesystem;
 
