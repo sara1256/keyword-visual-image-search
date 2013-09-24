@@ -43,6 +43,7 @@
 #include "flann/util/saving.h"
 
 #include "flann/algorithms/all_indices.h"
+#include "flann/keyword/bloom_filter_manager.hpp"
 
 namespace flann
 {
@@ -114,7 +115,6 @@ public:
         }
     }
 
-
     Index(const Index& other) : loaded_(other.loaded_), index_params_(other.index_params_)
     {
     	nnIndex_ = other.nnIndex_->clone();
@@ -141,10 +141,9 @@ public:
         }
     }
 
-	void buildSignature()
+	void buildSignature(bloom_filter_manager &signatures)
 	{
-		std::cout << "flann.hpp => buildSignature()" << std::endl;
-		nnIndex_->buildSignature();
+		nnIndex_->buildSignature(signatures);
 	}
 
     void buildIndex(const Matrix<ElementType>& points)
@@ -188,6 +187,12 @@ public:
         }
         nnIndex_->saveIndex(fout);
         fclose(fout);
+    }
+
+	// added by mojool
+    void saveSignatureIndex(std::string filename)
+    {
+        nnIndex_->saveSignatureIndex(filename);
     }
 
     /**
@@ -427,6 +432,9 @@ private:
     bool loaded_;
     /** Parameters passed to the index */
     IndexParams index_params_;
+
+	// added by mojool
+	bloom_filter_manager signatures_;
 };
 
 

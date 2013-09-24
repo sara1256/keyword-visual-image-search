@@ -3,34 +3,37 @@
 
 #include <iostream>
 
-using namespace flann;
-
 int main(int argc, char* argv[])
 {
-	Matrix<float> dataset;
-	load_from_file(dataset, "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_vlads.hdf5", "vladpcas");
+	//---------- set data path ----------//
+	std::string base_path = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/";
+	std::string vlads_path = base_path + "merged_vlads.hdf5";
+	std::string tags_path = base_path + "merged_tags_for_serial_access.dat";
+
+	//---------- load vlads from file ----------//
+	flann::Matrix<float> dataset;
+
+	std::cout << "Loading vlads       : " << vlads_path << " ... "; std::cout.flush();
+	flann::load_from_file(dataset, vlads_path.c_str(), "vladpcas");
+	std::cout << "Done." << std::endl; std::cout.flush();
+
+	//---------- load tags signatures from file ----------//
+	bloom_filter_manager signatures;
+
+	std::cout << "Loading signatures  : " << vlads_path << " ... "; std::cout.flush();
+	signatures.load_for_serial_access( tags_path.c_str() );
+	std::cout << "Done." << std::endl; std::cout.flush();
+
 
 	std::cout << "\ndataset.cols = " << dataset.cols << ", dataset.rows = " << dataset.rows << std::endl;
 
-	/*
-	Matrix<float> dataset2(new float[dataset.cols*2], 2, dataset.cols);
-    Index<L2<float> > index(dataset2, flann::KDTreeIndexParams(1));
-	for (int r=0; r<2; r++)
-	{
-		for (int c=0; c < dataset.cols; c++) {
-			dataset2[r][c] = dataset[r][c];
-			std::cout << dataset2[r][c] << " ";
-		}
-		std::cout << std::endl;
-	}
-	*/
-
-    // construct an randomized kd-tree index using 4 kd-trees
-    //Index<L2<float> > index(dataset, flann::KDTreeIndexParams(4));
-    //index.buildIndex();
-	Index<L2<float> > index(dataset, flann::SavedIndexParams("index.idx"));
-	index.buildSignature();
-	//index.save("index.idx");
+	//---------- construct 4 randomized kd-trees ----------//
+    flann::Index<flann::L2<float> > index(dataset, flann::KDTreeIndexParams(4));
+    index.buildIndex();
+	std::cout << "kd-tree indexing is done." << std::endl; std::cout.flush();
+	index.buildSignature(signatures);
+	index.save("index.idx");
+	index.saveSignatureIndex("nonleaf_ok.dat");
 
 	std::cout << "Indexing is done." << std::endl;
 

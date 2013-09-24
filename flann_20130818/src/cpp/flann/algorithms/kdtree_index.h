@@ -195,6 +195,10 @@ public:
     	sa & *this;
     }
 
+    void saveSignatureIndex(std::string filename) 
+    {
+		nonleaf_signatures_.save_for_random_access( filename.c_str() );
+    }
 
     void loadIndex(FILE* stream)
     {
@@ -310,26 +314,16 @@ protected:
 	/**
 	 * Build a signature
 	 */
-	void buildSignatureImpl()
+	void buildSignatureImpl(bloom_filter_manager &signatures)
 	{
-        /* nothing to do here */
-		std::cout << "algorithm/kdtree_index.h => buildSignatureImpl()" << std::endl;
-
 		// 1. traverse kd tree, visit a leaf node, create a signature at the leaf node
 		// 2. propagate signature to ancestors
 
-		std::string signature_filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags_for_serial_access.dat";
-
-		std::cout << "Loading signatures : " << signature_filename << " ... ";
-		std::cout.flush();
-		leaf_signatures.load_for_serialization(signature_filename.c_str());
-		std::cout << "Done." << std::endl;
-		std::cout.flush();
+		leaf_signatures_ = &signatures;
 
 		for (size_t i=0; i<tree_roots_.size(); i++) {
-			buildSignatureDFS(tree_roots_[i]);
+			buildSignatureRecurs(tree_roots_[i]);
 		}
-
 	}
 
     void freeIndex()
@@ -344,8 +338,8 @@ protected:
 
 private:
     /*--------------------- Bloom Filters --------------------------*/
-	bloom_filter_manager leaf_signatures;
-	bloom_filter_manager nonleaf_signatures;
+	bloom_filter_manager *leaf_signatures_;
+	bloom_filter_manager nonleaf_signatures_;
 
     /*--------------------- Internal Data Structures --------------------------*/
     struct Node
@@ -370,13 +364,15 @@ private:
 		/**
 		 * Signature (By mojool)
 		 */
-		bloom_filter *signature;	// to be deprecated
 		int signature_id;
 
         ~Node() {
         	if (child1!=NULL) child1->~Node();
         	if (child2!=NULL) child2->~Node();
         }
+
+		// added by mojool
+		bool isleaf;
 
     private:
     	template<typename Archive>
@@ -417,56 +413,33 @@ private:
 
 	// written by mojool
 	// return child node's pointer for bottom-up signature building
-	NodePtr buildSignatureDFS(const NodePtr node)
+	NodePtr buildSignatureRecurs(const NodePtr node)
 	{
 		if (node->child1 == NULL && node->child2 == NULL)
 		{
-			/*
-			bloom_parameters parameters;
-			parameters.projected_element_count = 10000;
-			parameters.false_positive_probability = 1.0 / 10000;
-			parameters.random_seed = 1;
-
-			parameters.compute_optimal_parameters();
-
-			node->signature = new bloom_filter(parameters);
-
-			std::vector<std::string> word_list;
-			word_list.push_back("apple");
-			word_list.push_back("orange");
-			word_list.push_back("lemon");
-			word_list.push_back("melon");
-
-			node->signature->insert(word_list.begin(), word_list.end());
-			*/
-
-			/**
-			  * added by mojool
-			  */
 			node->signature_id = node->divfeat;
-			//bloom_filter bf = this->leaf_signatures[node->signature_id];
-			//node->signature = new bloom_filter(bf);
-			node->signature = NULL;
-			// vector index
-			int index = node->divfeat;
-			//std::cout << "leaf node index =" << node->divfeat << std::endl;
-
+			node->isleaf = true;
 			return node;
 		}
 
-		NodePtr pt1 = buildSignatureDFS(node->child1);
-		NodePtr pt2 = buildSignatureDFS(node->child2);
+		NodePtr pt1 = buildSignatureRecurs( node->child1 );
+		NodePtr pt2 = buildSignatureRecurs( node->child2 );
 
 		bloom_filter *sig1, *sig2;
 
-		if (pt1->signature == NULL) sig1 = &(this->leaf_signatures[pt1->signature_id]);
-		else sig1 = pt1->signature;
+		if (pt1->isleaf) sig1 = &( (*(this->leaf_signatures_))[pt1->signature_id] );
+		else sig1 = &( this->nonleaf_signatures_[pt1->signature_id] );
 
-		if (pt2->signature == NULL) sig2 = &(this->leaf_signatures[pt2->signature_id]);
-		else sig2 = pt2->signature;
+		if (pt2->isleaf) sig2 = &( (*(this->leaf_signatures_))[pt2->signature_id]);
+		else sig2 = &( this->nonleaf_signatures_[pt2->signature_id] );
 
-		//node->signature = new bloom_filter( *(pt1->signature) | *(pt2->signature) );
-		node->signature = new bloom_filter( *sig1 | *sig2 );
+		//std::cout << "PT1 = " << pt1->signature_id << ", PT2 = " << pt2->signature_id << std::endl;
+
+		bloom_filter filter( *sig1 | *sig2 );
+		node->signature_id = nonleaf_signatures_.append( filter );
+
+		if (node->signature_id % 100 == 0)
+			std::cout << "node->signature_id = " << node->signature_id << std::endl;
 
 		return node;
 	}
@@ -781,8 +754,14 @@ private:
             return;
         }
 
+		/*
+		bloom_filter *sig1, *sig2;
 
-		std::vector<std::string>::const_iterator iter = node->signature->contains_all(keywords.begin(), keywords.end());
+		if (pt1->isleaf) sig1 = &( this->leaf_signatures[pt1->signature_id] );
+		else sig1 = &( this->nonleaf_signatures[pt1->signature_id] );
+		*/
+
+		std::vector<std::string>::const_iterator iter;// = node->signature->contains_all(keywords.begin(), keywords.end());
 		if (keywords.end() != iter) {
             //			printf("Ignoring branch, keyword not found\n");
 			return;

@@ -40,6 +40,8 @@
 #include "flann/util/dynamic_bitset.h"
 #include "flann/util/saving.h"
 
+#include "flann/keyword/bloom_filter_manager.hpp"
+
 namespace flann
 {
 
@@ -64,6 +66,8 @@ public:
     virtual void loadIndex(FILE* stream) = 0;
 
     virtual void saveIndex(FILE* stream) = 0;
+
+    virtual void saveSignatureIndex(std::string filename) = 0;
 };
 
 /**
@@ -133,10 +137,10 @@ public:
         size_at_build_ = size_;
 	}
 
-	virtual void buildSignature()
+	virtual void buildSignature(bloom_filter_manager &signatures)
 	{
     	// build a signature 
-		buildSignatureImpl();
+		buildSignatureImpl(signatures);
 	}
 
 	/**
@@ -796,7 +800,7 @@ protected:
 
     virtual void buildIndexImpl() = 0;
 
-    virtual void buildSignatureImpl() = 0;	// by mojool
+    virtual void buildSignatureImpl(bloom_filter_manager &signatures) = 0;	// by mojool
 
     size_t id_to_index(size_t id)
     {

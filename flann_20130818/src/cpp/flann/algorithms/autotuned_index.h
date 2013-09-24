@@ -214,6 +214,11 @@ public:
     	bestIndex_->saveIndex(stream);
     }
 
+    void saveSignatureIndex(std::string filename) 
+    {
+        throw FLANNException( "Index saving not implemented!" );
+    }
+
     void loadIndex(FILE* stream)
     {
     	serialization::LoadArchive la(stream);
@@ -355,7 +360,7 @@ protected:
         /* nothing to do here */
     }
 
-    void buildSignatureImpl()
+    void buildSignatureImpl(bloom_filter_manager &signatures)
     {
         /* nothing to do here */
     }

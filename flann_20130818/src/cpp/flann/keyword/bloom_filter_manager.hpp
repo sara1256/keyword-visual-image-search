@@ -46,9 +46,10 @@ private:
 public:
 	bloom_filter_manager(): number_of_filters_(0) { }
 
-	void append(const bloom_filter &f)
+	int append(const bloom_filter &f)
 	{
 		filters.push_back( new bloom_filter(f) );
+		return filters.size() - 1;
 	}
 
 	void save_for_serial_access(const char *filename)
@@ -149,7 +150,7 @@ public:
 		ofs.write( reinterpret_cast<char*>(&h), sizeof(bloom_filter_header_t) );
 		ofs.write( reinterpret_cast<char*>(&bf->salt_[0]), sizeof(bloom_type) * bf->salt_.size() );
 	
-		for (int k=0; k<filters.size(); k++)
+		for (unsigned int k=0; k<filters.size(); k++)
 			ofs.write( reinterpret_cast<char*>(filters[k]->bit_table_),
 						sizeof(unsigned char) * filters[k]->raw_table_size_ );
 
