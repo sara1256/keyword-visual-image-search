@@ -7,6 +7,8 @@ path:
    yaml: mappings.yml
    plain: mappings.txt
   tags: merged_tags.dat
+   serial_access: merged_tags_for_serial_access.dat
+   random_access: merged_tags_for_random_access.dat
   vlads: merged_vlads.hdf5
 datasets:
  dataset_000:

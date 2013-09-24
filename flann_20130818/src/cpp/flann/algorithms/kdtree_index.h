@@ -318,11 +318,11 @@ protected:
 		// 1. traverse kd tree, visit a leaf node, create a signature at the leaf node
 		// 2. propagate signature to ancestors
 
-		std::string signature_filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags.dat";
+		std::string signature_filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags_for_serial_access.dat";
 
 		std::cout << "Loading signatures : " << signature_filename << " ... ";
 		std::cout.flush();
-		leaf_signatures.load(signature_filename.c_str());
+		leaf_signatures.load_for_serialization(signature_filename.c_str());
 		std::cout << "Done." << std::endl;
 		std::cout.flush();
 

@@ -12,13 +12,16 @@ YAML_INC			= -I../../../3rd_party/yaml-cpp-0.5.1/include/
 YAML_LIB_PATH		= -L../../../3rd_party/yaml-cpp-0.5.1/build/
 YAML_LIB			= -lyaml-cpp
 
-all: stemmer merger
+all: stemmer merger converter
 
 stemmer: stemmer.cpp
-	$(CC) -o stemmer stemmer.cpp -L$(INC) -lporter2_stemmer -I$(INC)
+	$(CC) -o $@ stemmer.cpp -L$(INC) -lporter2_stemmer -I$(INC)
 
 merger: merger.cpp
-	$(CC) -o merger merger.cpp $(OPT) $(BOOST_LIB) $(BOOST_INC) $(BLOOM_INC)
+	$(CC) -o $@ merger.cpp $(OPT) $(BOOST_LIB) $(BOOST_INC) $(BLOOM_INC)
+
+converter: converter.cpp
+	$(CC) -o $@ converter.cpp $(OPT) $(BOOST_LIB) $(BOOST_INC) $(BLOOM_INC)
 
 clean:
-	rm stemmer merger
+	rm stemmer merger converter

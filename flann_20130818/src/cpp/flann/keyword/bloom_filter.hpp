@@ -173,24 +173,23 @@ class bloom_filter_manager;
 class bloom_filter
 {
 protected:
+	friend class boost::serialization::access;
+	friend class bloom_filter_manager;
 
-   friend class boost::serialization::access;
-   friend class bloom_filter_manager;
+	template<class Archive>
+	void save(Archive &ar, const unsigned int version) const
+	{
+		ar & salt_count_;
+		ar & table_size_;
+		ar & raw_table_size_;
+		ar & projected_element_count_;
+		ar & inserted_element_count_;
+		ar & random_seed_;
+		ar & desired_false_positive_probability_;
 
-   template<class Archive>
-   void save(Archive &ar, const unsigned int version) const
-   {
-      ar & salt_count_;
-      ar & table_size_;
-      ar & raw_table_size_;
-      ar & projected_element_count_;
-      ar & inserted_element_count_;
-      ar & random_seed_;
-      ar & desired_false_positive_probability_;
-
-      for (unsigned int k=0; k<salt_.size(); k++) ar & salt_[k];
-      for (unsigned int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
-   }
+		for (unsigned int k=0; k<salt_.size(); k++) ar & salt_[k];
+		for (unsigned int i=0; i<raw_table_size_; i++) ar & bit_table_[i];
+	}
 
    template<class Archive>
    void load(Archive &ar, const unsigned int version)
@@ -494,15 +493,15 @@ public:
       return salt_.size();
    }
 
-protected:
+//protected:
+public: // temporary modified by mojool
 
    inline virtual void compute_indices(const bloom_type& hash, std::size_t& bit_index, std::size_t& bit) const
    {
       bit_index = hash % table_size_;
       bit = bit_index % bits_per_char;
    }
-
-   void generate_unique_salt()
+void generate_unique_salt()
    {
       /*
         Note:

@@ -12,9 +12,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include <keyword/bloom_filter.hpp>
-
-namespace bfs = boost::filesystem;
+#include <keyword/bloom_filter_manager.hpp>
 
 typedef struct
 {
@@ -64,7 +62,8 @@ bool load_mappings(const std::string mapping_filename, paths_t& p)
 // load yaml dataset setting file and get a path of mapping file
 bool load_dataset_settings(const std::string dataset_setting_filename,
 						std::string& mapping_file_path,
-						std::string& bloom_filter_file_path)
+						std::string& output_path_for_serial_access,
+						std::string& output_path_for_random_access)
 {
 	std::ifstream in(dataset_setting_filename);
 	if (!in.is_open()) { std::cerr << "Unable to open a setting file : " << dataset_setting_filename << std::endl; return false; }
@@ -89,7 +88,9 @@ bool load_dataset_settings(const std::string dataset_setting_filename,
 		if (key.compare("base:") == 0) integrated_path = value;
 		if (key.compare("base_folder:") == 0) integrated_path += value;
 		if (key.compare("plain:") == 0) mapping_file_path = integrated_path + value;
-		if (key.compare("tags:") == 0) bloom_filter_file_path = integrated_path + value;
+
+		if (key.compare("serial_access:") == 0) output_path_for_serial_access = integrated_path + value;
+		if (key.compare("random_access:") == 0) output_path_for_random_access = integrated_path + value;
 	}
 
 	return true;
@@ -126,10 +127,11 @@ int main(int argc, char* argv[])
 	}
 
 	std::string mapping_file_path;
-	std::string bloom_filter_file_path;
+	std::string output_path_for_serial_access;
+	std::string output_path_for_random_access;
 
 	// load a yaml dataset setting file
-	if (!load_dataset_settings(argv[1], mapping_file_path, bloom_filter_file_path)) {
+	if (!load_dataset_settings(argv[1], mapping_file_path, output_path_for_serial_access, output_path_for_random_access)) {
 		std::cerr << "Error occurs when a yaml dataset setting file is processed." << std::endl;
 		return -1;
 	}
@@ -168,13 +170,15 @@ int main(int argc, char* argv[])
 		}
 
 		filter.insert(tags.begin(), tags.end());
-		//std::cout << "Filter Size : " << filter.size() / (8 * 1024) << "KB" << std::endl;
+		std::cout << "Filter Size : " << filter.size() / (8 * 1024) << "KB" << std::endl;
 
 		mgr.append(filter);
-		break;
+
+		if (k == 0) break;
 	}
 
-	mgr.save(bloom_filter_file_path.c_str());
+	mgr.save_for_serial_access(output_path_for_serial_access.c_str());
+	//mgr.save_for_random_access(output_path_for_random_access.c_str());
 
 	return 0;
 }
