@@ -404,6 +404,10 @@ private:
     			ar & *child1;
     			ar & *child2;
     		}
+
+			// added by mojool
+			ar & signature_id;
+			ar & isleaf;
     	}
     	friend struct serialization::access;
     };
@@ -438,7 +442,7 @@ private:
 		bloom_filter filter( *sig1 | *sig2 );
 		node->signature_id = nonleaf_signatures_.append( filter );
 
-		if (node->signature_id % 100 == 0)
+		if (node->signature_id % 5000 == 1)
 			std::cout << "node->signature_id = " << node->signature_id << std::endl;
 
 		return node;
@@ -754,18 +758,22 @@ private:
             return;
         }
 
-		/*
 		bloom_filter *sig1, *sig2;
 
-		if (pt1->isleaf) sig1 = &( this->leaf_signatures[pt1->signature_id] );
-		else sig1 = &( this->nonleaf_signatures[pt1->signature_id] );
-		*/
+		std::cout << "node->signature_id = " << node->signature_id << std::endl;
+		std::cout << "node->divfeat = " << node->divfeat << std::endl;
 
+		//if (node->isleaf) sig1 = &( (*(this->leaf_signatures))[node->signature_id] );
+		//else sig1 = &( this->nonleaf_signatures[node->signature_id] );
+
+		/*
 		std::vector<std::string>::const_iterator iter;// = node->signature->contains_all(keywords.begin(), keywords.end());
+		//std::vector<std::string>::const_iterator iter = sig1->contains_all(keywords.begin(), keywords.end());
 		if (keywords.end() != iter) {
             //			printf("Ignoring branch, keyword not found\n");
 			return;
 		}
+		*/
 
         /* If this is a leaf node, then do check and return. */
         if ((node->child1 == NULL)&&(node->child2 == NULL)) {
