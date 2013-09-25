@@ -13,7 +13,6 @@ FLANN_INCLUDE			= -I../flann/src/cpp
 
 
 all: indexer searcher
-	#$(CC) flann_example.cpp -L/usr/lib -lhdf5 -L../flann/build/lib -lflann_cpp $(PORTER2_STEMMER_LIB) -lporter2_stemmer -lboost_serialization -I../flann/src/cpp -I../porter2_stemmer $(BOOST_INCLUDE)
 
 indexer: indexer.cpp
 	$(CC) -o $@ indexer.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(BOOST_INCLUDE)

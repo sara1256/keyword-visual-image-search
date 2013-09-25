@@ -47,7 +47,6 @@ namespace flann
 
 #define KNN_HEAP_THRESHOLD 250
 
-
 class IndexBase
 {
 public:
@@ -68,6 +67,8 @@ public:
     virtual void saveIndex(FILE* stream) = 0;
 
     virtual void saveSignatureIndex(std::string filename) = 0;
+
+	virtual void openSignatureIndexes(const char *leaf_signature_filename, const char* nonleaf_signature_filename) = 0;
 };
 
 /**
@@ -229,7 +230,6 @@ public:
     {
         return index_params_;
     }
-
 
     template<typename Archive>
     void serialize(Archive& ar)
@@ -401,7 +401,8 @@ public:
     		Matrix<size_t>& indices,
     		Matrix<DistanceType>& dists,
     		size_t knn,
-    		const SearchParams& params) const
+    		const SearchParams& params)
+//    		const SearchParams& params) const
     {
     	assert(queries.cols == veclen());
     	assert(indices.rows >= queries.rows);
@@ -467,7 +468,8 @@ public:
                                  Matrix<int>& indices,
                                  Matrix<DistanceType>& dists,
                                  size_t knn,
-                           const SearchParams& params) const
+                           const SearchParams& params)
+//                           const SearchParams& params) const
     {
     	flann::Matrix<size_t> indices_(new size_t[indices.rows*indices.cols], indices.rows, indices.cols);
     	int result = knnSearch2(queries, keywords, indices_, dists, knn, params);
@@ -792,7 +794,8 @@ public:
 
 
     virtual void findNeighbors(ResultSet<DistanceType>& result, const ElementType* vec, const SearchParams& searchParams) const = 0;
-    virtual void findNeighbors2(ResultSet<DistanceType>& result, const ElementType* vec, const std::vector<std::string> keywords, const SearchParams& searchParams) const = 0;
+    //virtual void findNeighbors2(ResultSet<DistanceType>& result, const ElementType* vec, const std::vector<std::string> keywords, const SearchParams& searchParams) const = 0;
+    virtual void findNeighbors2(ResultSet<DistanceType>& result, const ElementType* vec, const std::vector<std::string> keywords, const SearchParams& searchParams) = 0;
 
 protected:
 
@@ -979,7 +982,6 @@ protected:
      * Pointer to dataset memory if allocated by this index, otherwise NULL
      */
     ElementType* data_ptr_;
-
 
 };
 

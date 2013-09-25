@@ -52,7 +52,7 @@ public:
 		return filters.size() - 1;
 	}
 
-	void save_for_serial_access(const char *filename)
+	void save_for_serial_access(const char *filename) const
 	{
 		std::ofstream ofs(filename);
 		boost::archive::binary_oarchive oa(ofs);

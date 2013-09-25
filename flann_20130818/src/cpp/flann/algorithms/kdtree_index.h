@@ -200,6 +200,15 @@ public:
 		nonleaf_signatures_.save_for_random_access( filename.c_str() );
     }
 
+	void openSignatureIndexes(const char *leaf_signature_filename, const char* nonleaf_signature_filename)
+    {
+		if (!saved_leaf_signatures_.open_for_random_access( leaf_signature_filename ))
+			throw FLANNException( "Unable to open a leaf signature file : " + std::string(leaf_signature_filename) );
+
+		if (!saved_nonleaf_signatures_.open_for_random_access( nonleaf_signature_filename ))
+			throw FLANNException( "Unable to open a non-leaf signature file : " + std::string(nonleaf_signature_filename) );
+    }
+
     void loadIndex(FILE* stream)
     {
     	freeIndex();
@@ -261,7 +270,8 @@ public:
     void findNeighbors2(ResultSet<DistanceType>& result,
 						const ElementType* vec,
 						const std::vector<std::string> keywords,
-						const SearchParams& searchParams) const
+						const SearchParams& searchParams)
+//						const SearchParams& searchParams) const
     {
         int maxChecks = searchParams.checks;
         float epsError = 1+searchParams.eps;
@@ -669,7 +679,8 @@ private:
 						const ElementType* vec,
 						const std::vector<std::string> keywords,
 						int maxCheck,
-						float epsError) const
+						float epsError)
+//						float epsError) const
     {
         int i;
         BranchSt branch;
@@ -751,29 +762,30 @@ private:
      */
     template<bool with_removed>
     void searchLevel2(ResultSet<DistanceType>& result_set, const ElementType* vec, NodePtr node, const std::vector<std::string> keywords, DistanceType mindist, int& checkCount, int maxCheck,
-                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked) const
+                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked)
+//                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked) const
     {
         if (result_set.worstDist()<mindist) {
             //			printf("Ignoring branch, too far\n");
             return;
         }
 
-		bloom_filter *sig1, *sig2;
+		bloom_filter *signature;
 
-		std::cout << "node->signature_id = " << node->signature_id << std::endl;
-		std::cout << "node->divfeat = " << node->divfeat << std::endl;
+		if (node->isleaf)
+		{
+			signature = saved_leaf_signatures_.load_for_random_access( node->signature_id );
+		}
+		else
+		{
+			signature = saved_nonleaf_signatures_.load_for_random_access( node->signature_id );
+		}
 
-		//if (node->isleaf) sig1 = &( (*(this->leaf_signatures))[node->signature_id] );
-		//else sig1 = &( this->nonleaf_signatures[node->signature_id] );
-
-		/*
-		std::vector<std::string>::const_iterator iter;// = node->signature->contains_all(keywords.begin(), keywords.end());
-		//std::vector<std::string>::const_iterator iter = sig1->contains_all(keywords.begin(), keywords.end());
+		std::vector<std::string>::const_iterator iter = signature->contains_all(keywords.begin(), keywords.end());
 		if (keywords.end() != iter) {
             //			printf("Ignoring branch, keyword not found\n");
 			return;
 		}
-		*/
 
         /* If this is a leaf node, then do check and return. */
         if ((node->child1 == NULL)&&(node->child2 == NULL)) {
@@ -954,6 +966,10 @@ private:
      * number small of memory allocations.
      */
     PooledAllocator pool_;
+
+	// added by mojool
+	bloom_filter_manager saved_leaf_signatures_;
+	bloom_filter_manager saved_nonleaf_signatures_;
 
     USING_BASECLASS_SYMBOLS
 };   // class KDTreeIndex

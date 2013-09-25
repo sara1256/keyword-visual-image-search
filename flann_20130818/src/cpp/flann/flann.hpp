@@ -98,7 +98,6 @@ public:
         }
     }
 
-
     Index(const Matrix<ElementType>& features, const IndexParams& params, Distance distance = Distance() )
         : index_params_(params)
     {
@@ -112,6 +111,28 @@ public:
         else {
         	flann_algorithm_t index_type = get_param<flann_algorithm_t>(params, "algorithm");
             nnIndex_ = create_index_by_type<Distance>(index_type, features, params, distance);
+        }
+    }
+
+	// added by mojool
+    Index(const Matrix<ElementType>& features, const IndexParams& params,
+		std::string leaf_signatures_filename,
+		std::string nonleaf_signatures_filename,
+		Distance distance = Distance() )
+        : index_params_(params)
+    {
+        flann_algorithm_t index_type = get_param<flann_algorithm_t>(params,"algorithm");
+        loaded_ = false;
+
+        if (index_type == FLANN_INDEX_SAVED) {
+            nnIndex_ = load_saved_index(features, get_param<std::string>(params,"filename"), distance);
+
+			nnIndex_->openSignatureIndexes( leaf_signatures_filename.c_str(), nonleaf_signatures_filename.c_str() );
+
+            loaded_ = true;
+        }
+        else {
+			throw FLANNException( "This constructor only supports Saved Index!" );
         }
     }
 
@@ -266,7 +287,8 @@ public:
                                  Matrix<int>& indices,
                                  Matrix<DistanceType>& dists,
                                  size_t knn,
-                           const SearchParams& params) const
+//                           const SearchParams& params) const
+                           const SearchParams& params)
     {
     	return nnIndex_->knnSearch2(queries, keywords, indices, dists, knn, params);
     }
@@ -432,9 +454,6 @@ private:
     bool loaded_;
     /** Parameters passed to the index */
     IndexParams index_params_;
-
-	// added by mojool
-	bloom_filter_manager signatures_;
 };
 
 

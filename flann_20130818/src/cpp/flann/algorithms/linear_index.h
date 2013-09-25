@@ -125,6 +125,11 @@ public:
         throw FLANNException( "Index saving not implemented!" );
     }
 
+	void openSignatureIndexes(const char *leaf_signature_filename, const char* nonleaf_signature_filename)
+    {
+        throw FLANNException( "Index saving not implemented!" );
+    }
+
     void loadIndex(FILE* stream)
     {
     	serialization::LoadArchive la(stream);
@@ -151,7 +156,8 @@ public:
     void findNeighbors2(ResultSet<DistanceType>& result,
 						const ElementType* vec,
 						const std::vector<std::string> keywords,
-						const SearchParams& searchParams) const
+						const SearchParams& searchParams)
+//						const SearchParams& searchParams) const
     {
 	}
 

@@ -165,6 +165,11 @@ public:
         throw FLANNException( "Index saving not implemented!" );
     }
 
+	void openSignatureIndexes(const char *leaf_signature_filename, const char* nonleaf_signature_filename)
+    {
+        throw FLANNException( "Index saving not implemented!" );
+    }
+
     void loadIndex(FILE* stream)
     {
         throw FLANNException( "Index loading not implemented!" );
