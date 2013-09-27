@@ -12,13 +12,13 @@ FLANN_LIB				= -L../flann/build/lib -lflann_cpp
 FLANN_INCLUDE			= -I../flann/src/cpp
 
 
-all: indexer searcher
+all: hybrid_indexer hybrid_searcher
 
-indexer: indexer.cpp
-	$(CC) -o $@ indexer.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(BOOST_INCLUDE)
+hybrid_indexer: hybrid_indexer.cpp
+	$(CC) -o $@ hybrid_indexer.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(BOOST_INCLUDE)
 
-searcher: searcher.cpp
-	$(CC) -o $@ searcher.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(PORTER2_STEMMER_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(PORTER2_STEMMER_INCLUDE) $(BOOST_INCLUDE)
+hybrid_searcher: hybrid_searcher.cpp
+	$(CC) -o $@ hybrid_searcher.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(PORTER2_STEMMER_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(PORTER2_STEMMER_INCLUDE) $(BOOST_INCLUDE)
 
 clean:
-	rm indexer searcher
+	rm hybrid_indexer hybrid_searcher

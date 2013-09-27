@@ -65,8 +65,12 @@ int main(int argc, char** argv)
 
 	// TODO
 	//  - run porter stemmer here
+	std::vector<std::string> stemmed_keywords;
 
-	int count2 = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(256));
+	for (int k=0; k<keywords.size(); k++)
+		stemmed_keywords.push_back( Porter2Stemmer::stem( keywords[k] ) );
+
+	int count2 = index.knnSearch2(query, stemmed_keywords, indices, dists, nn, flann::SearchParams(256));
 
 	clock_t end = clock();
 
