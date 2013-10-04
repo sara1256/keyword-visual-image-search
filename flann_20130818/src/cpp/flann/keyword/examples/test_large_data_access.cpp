@@ -24,8 +24,8 @@ int main(int argc, char* argv[])
 	std::cout << "------------------------------------------------------------------\n" << std::endl;
 
 	//---------- large file load ----------//
-	//std::string filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags_for_random_access.dat";
-	std::string filename = "/home/mojool1984/Desktop/project/keyword-visual-image-search/hybrid_index/nonleaf.dat";	
+	std::string filename = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/merged_tags_for_random_access.dat";
+	//std::string filename = "/home/mojool1984/Desktop/project/keyword-visual-image-search/hybrid_index/nonleaf_ok.dat";	
 
 	assert( mgr_for_load.open_for_random_access( filename.c_str() ) );
 	filter_test( mgr_for_load, RANDOM_ACCESS, query_words, false );

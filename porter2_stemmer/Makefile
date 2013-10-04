@@ -4,7 +4,7 @@ CC = g++ -std=c++0x
 CCOPTS = -O3
 LINKER = g++ -std=c++0x
 
-all: $(EXE)
+all: $(EXE) lib
 
 $(EXE): $(OBJS) main.cpp
 	$(LINKER) main.cpp -o $@ $(OBJS)

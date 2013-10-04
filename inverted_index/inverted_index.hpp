@@ -6,6 +6,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 
 typedef unsigned int posting_t;
@@ -13,13 +14,12 @@ typedef unsigned int posting_t;
 class InvertedIndex
 {
 public:
-	InvertedIndex() : loaded_(false), postings_loaded_(NULL)
+	InvertedIndex() : loaded_(false)
 	{
 	}
 
 	~InvertedIndex()
 	{
-		if (postings_loaded_ != NULL) delete[] postings_loaded_;
 	}
 
 	bool save( const char *filename )
@@ -37,59 +37,57 @@ public:
 		ifs.open( filename, std::ios::in | std::ios::binary );
 		if (!ifs.is_open()) return false;
 
-		load_terms( ifs );
-		load_postings_header( ifs );
+		load_terms();
+		load_postings_header();
 
 		loaded_ = true;
 
 		return true;
 	}
 
-	void append_terms( std::vector<std::string> new_terms )
+	void append( std::string term, posting_t post )
 	{
-		terms.resize( new_terms.size() );
-		postings.resize( new_terms.size() );
-		std::copy( new_terms.begin(), new_terms.end(), terms.begin() );
-		std::sort( terms.begin(), terms.end() );
-
-	}
-
-	void append_posting( std::string term, posting_t post )
-	{
-		std::vector<std::string>::iterator iter = std::find( terms.begin(), terms.end(), term );
-
-		// the term does not exist
-		assert( iter != terms.end() );
-
-		unsigned int term_id = iter - terms.begin();
-		postings[term_id].push_back(post);
+		// check existance of the term
+		if ( inv_index.find( term ) == inv_index.end() )	// not found
+		{
+			std::vector<posting_t> posting; posting.push_back( post );
+			std::pair<std::string, std::vector<posting_t>> entry( term, posting );
+			inv_index.insert( entry );
+		}
+		else // found
+		{
+			inv_index.at( term ).push_back( post );
+		}
 	}
 
 	//---------- getters ----------//
-	std::vector< posting_t> get_posting_list( std::string term )
+	std::vector<posting_t> operator[]( std::string term )
 	{
-		assert( loaded_ );
+		if ( !load_postings( term ) ) return *(new std::vector<posting_t>);
+		//load_postings( term );
 
-		// get term id
-		std::vector<std::string>::iterator iter = std::find( terms.begin(), terms.end(), term );
+		if ( inv_index.find( term ) == inv_index.end() )
+			return *(new std::vector<posting_t>);
 
-		// the term does not exist
-		assert( iter != terms.end() );
-
-		unsigned int term_id = iter - terms.begin();
-		load_postings( ifs, term_id );
-
-		std::cout << "size = " << postings[term_id].size() << std::endl;
-
-		return postings[term_id];
+		return inv_index.at( term );
 	}
 
-	std::vector< posting_t> get_posting_list( unsigned int term_id )
+	std::vector<posting_t> find( std::vector<std::string> terms )
 	{
-		assert( loaded_ );
+		if (terms.size() == 1) return (*this)[terms[0]];
 
-		load_postings( ifs, term_id );
-		return postings[term_id];
+		// intersect posting lists
+		std::vector<posting_t> first = (*this)[terms[0]];
+
+		for (int m=1; m<terms.size(); m++)
+		{
+			std::cout << "==> " << terms[m] << std::endl;
+			std::vector<posting_t> second = (*this)[terms[m]];
+	
+			first = merge( first, second );
+		}
+
+		return first;
 	}
 
 	size_t get_num_terms()
@@ -105,12 +103,14 @@ public:
 
 private:
 	size_t num_terms;
-	std::vector<std::string> terms;
-	std::vector< std::vector<posting_t> > postings;
 	std::vector<size_t> posting_lengths;
 	std::vector<size_t> accumulative_posting_lengths;
-	bool *postings_loaded_;
 	bool loaded_;
+
+	std::unordered_map<std::string, std::vector<posting_t>> inv_index;
+
+	// the following variable keeps track of a term and its saving order in a file.
+	std::unordered_map<std::string, unsigned int> term_saving_orders;
 
 	std::ifstream ifs;
 
@@ -121,44 +121,44 @@ private:
 		return p1 < p2;
 	}
 
-	void load_terms( std::ifstream& stream )
+	void load_terms()
 	{
-		stream.read( reinterpret_cast<char*>(&num_terms), sizeof(num_terms) );
-
-		terms.clear();	
-		terms.resize( num_terms );
+		ifs.read( reinterpret_cast<char*>(&num_terms), sizeof(num_terms) );
 
 		for (size_t k=0; k<num_terms; k++)
 		{
 			size_t term_size;
 
-			stream.read( reinterpret_cast<char*>(&term_size), sizeof(size_t) );
+			ifs.read( reinterpret_cast<char*>(&term_size), sizeof(size_t) );
 
 			std::vector<char> tmp( term_size );
-			stream.read(&tmp[0], term_size);
+			ifs.read(&tmp[0], term_size);
 
-			terms[k].assign(&tmp[0], term_size);
+			std::string term;
+			term.assign(&tmp[0], term_size);
+
+			std::pair<std::string, unsigned int> entry( term, (unsigned int)k );
+			term_saving_orders.insert( entry );
 		}
 	}
 
 	void save_terms( std::ofstream& stream )
 	{
-		num_terms = terms.size();
-
+		size_t num_terms = inv_index.size();
 		stream.write( reinterpret_cast<char*>(&num_terms), sizeof(size_t) );
 
-		for (size_t k=0; k<num_terms; k++)
+		for (auto it = inv_index.cbegin(); it != inv_index.cend(); ++it)
 		{
-			size_t term_size = terms[k].size();
-			std::string term = terms[k];
+			std::string term = it->first;
+			size_t term_size = term.size();
 
 			stream.write( reinterpret_cast<char*>(&term_size), sizeof(size_t) );
 
-			stream << terms[k];
+			stream << term;
 		}
 	}
 
-	void load_postings_header( std::ifstream& stream )
+	void load_postings_header()
 	{
 		if (num_terms == 0) return;
 
@@ -168,53 +168,66 @@ private:
 
 		for (size_t k=0; k<num_terms-1; k++)
 		{
-			stream.read( reinterpret_cast<char*>(&posting_lengths[k]), sizeof(size_t) );
+			ifs.read( reinterpret_cast<char*>(&posting_lengths[k]), sizeof(size_t) );
 			accumulative_posting_lengths[k+1] = accumulative_posting_lengths[k] + posting_lengths[k];
 		}
 
-		stream.read( reinterpret_cast<char*>(&posting_lengths[num_terms-1]), sizeof(size_t) );
+		ifs.read( reinterpret_cast<char*>(&posting_lengths[num_terms-1]), sizeof(size_t) );
 
-		header_size_ = stream.tellg();
-
-		// set postings_loaded_ array
-		postings_loaded_ = new bool[num_terms];
-		std::memset( postings_loaded_, false, sizeof(bool) * num_terms );
-
-		// resize postings
-		postings.resize( num_terms );
+		header_size_ = ifs.tellg();
 	}
 
-	void load_postings( std::ifstream& stream, unsigned int term_id )
+	bool load_postings( std::string term )
 	{
-		assert( term_id >= 0 && term_id < num_terms );
-
-		if (postings_loaded_[term_id]) return;
+		auto it = term_saving_orders.find( term );
+	
+		// if term doesn't exist, return nothing	
+		if ( it == term_saving_orders.end() ) return false;
 
 		// locate the file cursor at the end of header
-		stream.seekg( header_size_, std::ios_base::beg );
+		ifs.seekg( header_size_, std::ios_base::beg );
 
-		size_t pos = accumulative_posting_lengths[term_id] * sizeof(posting_t);
-		stream.seekg( (std::streampos)pos, std::ios_base::cur );
+		size_t pos = accumulative_posting_lengths[it->second] * sizeof(posting_t);
+		ifs.seekg( (std::streampos)pos, std::ios_base::cur );
 
 		// read and assign postings into vectors
-		postings[term_id].resize( posting_lengths[term_id] );
+		std::vector<posting_t> posting;
+		posting.resize( posting_lengths[it->second] );
 
-		stream.read( reinterpret_cast<char*>(&postings[term_id][0]), sizeof(posting_t) * posting_lengths[term_id] );
+		ifs.read( reinterpret_cast<char*>(&posting[0]), sizeof(posting_t) * posting_lengths[it->second] );
 
-		postings_loaded_[term_id] = true;
+		std::pair<std::string, std::vector<posting_t>> entry( term, posting );
+		inv_index.insert( entry );
+		return true;
 	}
 
 	void save_postings( std::ofstream& stream )
 	{
-		for (size_t k=0; k<num_terms; k++)
+		for (auto it = inv_index.cbegin(); it != inv_index.cend(); ++it)
 		{
-			size_t posting_size = postings[k].size();
+			std::vector<posting_t> posting = it->second;
+			size_t posting_size = posting.size();
 			stream.write( reinterpret_cast<char*>(&posting_size), sizeof(size_t) );
 		}
 
-		for (size_t k=0; k<num_terms; k++)
-			stream.write( reinterpret_cast<char*>(&postings[k][0]), sizeof(posting_t) * postings[k].size() );
+		for (auto it = inv_index.cbegin(); it != inv_index.cend(); ++it)
+		{
+			std::vector<posting_t> posting = it->second;
+			stream.write( reinterpret_cast<char*>(&posting[0]), sizeof(posting_t) * posting.size() );
+		}
 	}
+
+	std::vector<posting_t> merge( const std::vector<posting_t> first,
+								  const std::vector<posting_t> second)
+	{
+		std::vector<posting_t> result;
+		result.resize( first.size() + second.size() );
+
+		auto it = std::set_intersection( first.begin(), first.end(), second.begin(), second.end(), result.begin() );
+		result.resize(it - result.begin());
+		return result;
+	}
+
 
 };
 

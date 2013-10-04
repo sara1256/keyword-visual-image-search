@@ -7,6 +7,8 @@
 
 #include <porter2_stemmer.h>
 
+#include <sys/time.h>
+
 using namespace flann;
 
 int main(int argc, char** argv)
@@ -58,13 +60,21 @@ int main(int argc, char** argv)
 	//keywords.push_back("cigarett");
 	//keywords.push_back("tattoo");
 	//keywords.push_back("smoke");
-	//keywords.push_back( "sanfrancisco" );
-	keywords.push_back( "berlin" );
+	//keywords.push_back( "berlin" );
+	if (argc <= 1)
+	{
+		std::cout << "Usage: ./hybrid_searcher keyword1 keyword2 ..." << std::endl;
+		return 0;
+	}
+	
+	for (int k=1; k<argc; k++) keywords.push_back( argv[k] );
 
-	clock_t begin = clock();	
+	//clock_t begin = clock();	
+	timeval start, end;
 
-	// TODO
-	//  - run porter stemmer here
+	gettimeofday(&start, 0);
+
+	// run porter stemmer
 	std::vector<std::string> stemmed_keywords;
 
 	for (int k=0; k<keywords.size(); k++)
@@ -72,7 +82,8 @@ int main(int argc, char** argv)
 
 	int count2 = index.knnSearch2(query, stemmed_keywords, indices, dists, nn, flann::SearchParams(256));
 
-	clock_t end = clock();
+	//clock_t end = clock();
+	gettimeofday(&end, 0);
 
 	std::cout << "count2 = " << count2 << std::endl;
 
@@ -92,13 +103,26 @@ int main(int argc, char** argv)
 		std::cout << std::endl;
 	}
 
-	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	//double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	//std::cout << "Elapsed secs = " << elapsed_secs << std::endl;
+	long seconds = end.tv_sec - start.tv_sec;
+	long useconds = end.tv_usec - start.tv_usec;
+	std::cout << "Elapsed msecs = " << (seconds * 1000.0 + useconds/1000.0) << std::endl;
 
-	std::cout << "Elapsed secs = " << elapsed_secs << std::endl;
+	timeval start2, end2;
+
+	gettimeofday(&start2, 0);
 
     //flann::save_to_file(indices,"result.hdf5","result");
 	count2 = index.knnSearch(query, indices, dists, nn, flann::SearchParams(256));
 	std::cout << "count2 = " << count2 << std::endl;
+
+	gettimeofday(&end2, 0);
+
+	long seconds2 = end2.tv_sec - start2.tv_sec;
+	long useconds2 = end2.tv_usec - start2.tv_usec;
+	std::cout << "Elapsed msecs = " << (seconds2 * 1000.0 + useconds2/1000.0) << std::endl;
+
 
 	std::cout << "\n---------- result ----------\n";
 	for (int r=0; r<indices.rows; r++) {
