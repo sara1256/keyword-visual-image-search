@@ -18,11 +18,11 @@ INVERTED_INDEX_INCLUDE	= -I../inverted_index/
 all: visual_index_andthen_keyword_scan inverted_index_andthen_visual_scan
 
 visual_index_andthen_keyword_scan: visual_index_andthen_keyword_scan.cpp
-	$(CC) -o $@ visual_index_andthen_keyword_scan.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(PORTER2_STEMMER_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(PORTER2_STEMMER_INCLUDE) $(BOOST_INCLUDE) $(BLOOM_INCLUDE)
+	$(CC) -o $@ visual_index_andthen_keyword_scan.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(PORTER2_STEMMER_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(PORTER2_STEMMER_INCLUDE) $(BOOST_INCLUDE) $(BLOOM_INCLUDE) -I../indices/common/
 
 
 inverted_index_andthen_visual_scan: inverted_index_andthen_visual_scan.cpp
-	$(CC) -o $@ inverted_index_andthen_visual_scan.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(PORTER2_STEMMER_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(PORTER2_STEMMER_INCLUDE) $(BOOST_INCLUDE) $(INVERTED_INDEX_INCLUDE)
+	$(CC) -o $@ inverted_index_andthen_visual_scan.cpp -L/usr/lib $(HDF5_LIB) $(FLANN_LIB) $(PORTER2_STEMMER_LIB) $(BOOST_LIB) $(FLANN_INCLUDE) $(PORTER2_STEMMER_INCLUDE) $(BOOST_INCLUDE) $(INVERTED_INDEX_INCLUDE) -I../indices/common/
 
 clean:
 	rm visual_index_andthen_keyword_scan inverted_index_andthen_visual_scan

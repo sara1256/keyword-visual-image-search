@@ -12,19 +12,9 @@
 
 #include <inverted_index.hpp>
 
+#include <indices_lib.hpp>
+
 using namespace flann;
-
-float calc_distance( const Matrix<float> v1, const Matrix<float> v2)
-{
-	assert( v1.cols == v2.cols );
-	assert( v1.rows == 1 );
-	assert( v2.rows == 1 );
-
-	float dist = 0.0;
-	//for (int k=0; k<v1.cols; k++) dist += (v1[0][k] - v2[0][k]) * (v1[0][k] - v2[0][k]);
-	for (int k=0; k<v1.cols; k++) dist += std::pow( v1[0][k] - v2[0][k], 2 );
-	return std::sqrt(dist);
-}
 
 int main(int argc, char** argv)
 {
@@ -79,7 +69,7 @@ int main(int argc, char** argv)
 
 		for (int k=0; k<dataset.cols; k++) vlad[0][k] = dataset[posting[m]][k];
 
-		float dist = calc_distance( query, vlad );
+		float dist = calc_distance_of_vectors( query, vlad );
 		result.push_back( std::pair<unsigned int, float>( posting[m], dist ) );
 	}
 
@@ -88,9 +78,7 @@ int main(int argc, char** argv)
 	//---------- record time ----------//
 	gettimeofday(&end2, 0);
 
-	long seconds2 = end2.tv_sec - start2.tv_sec;
-	long useconds2 = end2.tv_usec - start2.tv_usec;
-	std::cout << "Elapsed msecs = " << (seconds2 * 1000.0 + useconds2/1000.0) << std::endl; std::cout.flush();
+	std::cout << "Elapsed msecs!! = " << get_elapsed_time_in_msecs(start2, end2) << std::endl; std::cout.flush();
 
 
 	/*

@@ -10,6 +10,8 @@
 #include <sys/time.h>
 
 #include <keyword/bloom_filter_manager.hpp>
+#include <indices_lib.hpp>
+
 
 using namespace flann;
 
@@ -105,11 +107,11 @@ int main(int argc, char** argv)
 	long seconds2 = end2.tv_sec - start2.tv_sec;
 	long useconds2 = end2.tv_usec - start2.tv_usec;
 	std::cout << "Elapsed msecs = " << (seconds2 * 1000.0 + useconds2/1000.0) << std::endl; std::cout.flush();
-
+    std::cout << "Elapsed msecs = " << get_elapsed_time_in_msecs(start2, end2) << std::endl; std::cout.flush();
 
 
 	std::cout << "\n---------- result ----------\n";
-	for (int c=0; c<indices.cols; c++) std::cout << dists[0][c] << " "; std::cout << std::endl;
+	//for (int c=0; c<indices.cols; c++) std::cout << dists[0][c] << " "; std::cout << std::endl;
 
     delete[] dataset.ptr();
     delete[] query.ptr();

@@ -1,5 +1,4 @@
 #include <cassert>
-#include <ctime>
 #include <iostream>
 
 #include <flann/flann.hpp>
@@ -8,6 +7,8 @@
 #include <porter2_stemmer.h>
 
 #include <sys/time.h>
+
+#include <indices_lib.hpp>
 
 using namespace flann;
 
@@ -26,11 +27,7 @@ int main(int argc, char** argv)
 	flann::load_from_file(dataset, vlads_path.c_str(), "vladpcas");
 	std::cout << "Done." << std::endl; std::cout.flush();
 
-
-
 	Index<L2<float> > index(dataset, flann::SavedIndexParams("index.idx"), leaf_signature_path, nonleaf_signature_path);
-
-
 
     int nn = 100;
 
@@ -53,100 +50,39 @@ int main(int argc, char** argv)
     Matrix<int> indices(new int[query.rows*nn], query.rows, nn);
     Matrix<float> dists(new float[query.rows*nn], query.rows, nn);
 
-
-
 	// do a knn search with keyword query
 	std::vector<std::string> keywords;
-	//keywords.push_back("cigarett");
-	//keywords.push_back("tattoo");
-	//keywords.push_back("smoke");
-	//keywords.push_back( "berlin" );
+
 	if (argc <= 1)
 	{
 		std::cout << "Usage: ./hybrid_searcher keyword1 keyword2 ..." << std::endl;
 		return 0;
 	}
 	
-	for (int k=1; k<argc; k++) keywords.push_back( argv[k] );
+	for (int k=1; k<argc; k++) keywords.push_back( Porter2Stemmer::stem( argv[k] ) );
 
-	//clock_t begin = clock();	
 	timeval start, end;
 
 	gettimeofday(&start, 0);
 
-	// run porter stemmer
-	std::vector<std::string> stemmed_keywords;
+	int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(256));
 
-	for (int k=0; k<keywords.size(); k++)
-		stemmed_keywords.push_back( Porter2Stemmer::stem( keywords[k] ) );
-
-	int count2 = index.knnSearch2(query, stemmed_keywords, indices, dists, nn, flann::SearchParams(256));
-
-	//clock_t end = clock();
 	gettimeofday(&end, 0);
 
-	std::cout << "count2 = " << count2 << std::endl;
+	std::cout << "num_results = " << num_results << std::endl;
 
 	std::cout << "\n---------- result ----------\n";
-	for (int r=0; r<indices.rows; r++) {
-		for (int c=0; c<indices.cols; c++) {
-			std::cout << indices[r][c] << " ";
-		}
-		std::cout << std::endl;
-	}
+	display_result( indices, num_results );
 
 	std::cout << "\n---------- result ----------\n";
-	for (int r=0; r<indices.rows; r++) {
-		for (int c=0; c<indices.cols; c++) {
-			std::cout << dists[r][c] << " ";
-		}
-		std::cout << std::endl;
-	}
+	display_result( dists, num_results );
 
-	//double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	//std::cout << "Elapsed secs = " << elapsed_secs << std::endl;
-	long seconds = end.tv_sec - start.tv_sec;
-	long useconds = end.tv_usec - start.tv_usec;
-	std::cout << "Elapsed msecs = " << (seconds * 1000.0 + useconds/1000.0) << std::endl;
-
-	timeval start2, end2;
-
-	gettimeofday(&start2, 0);
-
-    //flann::save_to_file(indices,"result.hdf5","result");
-	count2 = index.knnSearch(query, indices, dists, nn, flann::SearchParams(256));
-	std::cout << "count2 = " << count2 << std::endl;
-
-	gettimeofday(&end2, 0);
-
-	long seconds2 = end2.tv_sec - start2.tv_sec;
-	long useconds2 = end2.tv_usec - start2.tv_usec;
-	std::cout << "Elapsed msecs = " << (seconds2 * 1000.0 + useconds2/1000.0) << std::endl;
-
-
-	std::cout << "\n---------- result ----------\n";
-	for (int r=0; r<indices.rows; r++) {
-		for (int c=0; c<indices.cols; c++) {
-			std::cout << indices[r][c] << " ";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << "\n---------- result ----------\n";
-	for (int r=0; r<indices.rows; r++) {
-		for (int c=0; c<indices.cols; c++) {
-			std::cout << dists[r][c] << " ";
-		}
-		std::cout << std::endl;
-	}
+	std::cout << "\nElapsed msecs = " << get_elapsed_time_in_msecs(start, end) << std::endl;
 
     delete[] dataset.ptr();
     delete[] query.ptr();
     delete[] indices.ptr();
     delete[] dists.ptr();
 
-	for (int k=0; k<keywords.size(); k++)
-		std::cout << Porter2Stemmer::stem(keywords[k]) << std::endl;
-    
     return 0;
 }
