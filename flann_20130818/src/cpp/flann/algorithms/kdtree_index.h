@@ -777,18 +777,18 @@ private:
 		if (node->isleaf)
 		{
 			signature = saved_leaf_signatures_.load_for_random_access( node->signature_id );
-			std::cout << "depth LEAF = " << depth << " (" << node->signature_id << ")\t";
+			//std::cout << "depth LEAF = " << depth << " (" << node->signature_id << ")\t";
 		}
 		else
 		{
 			signature = saved_nonleaf_signatures_.load_for_random_access( node->signature_id );
-			std::cout << "depth = " << depth << " (" << node->signature_id << ")\t";
+			//std::cout << "depth = " << depth << " (" << node->signature_id << ")\t";
 		}
 
 		std::vector<std::string>::const_iterator iter = signature->contains_all(keywords.begin(), keywords.end());
 		if (keywords.end() != iter) {
             //			printf("Ignoring branch, keyword not found\n");
-			std::cout << std::endl;
+			//std::cout << std::endl;
 			return;
 		}
 		signature->statistics();

@@ -80,46 +80,5 @@ int main(int argc, char** argv)
 
 	std::cout << "Elapsed msecs!! = " << get_elapsed_time_in_msecs(start2, end2) << std::endl; std::cout.flush();
 
-
-	/*
-    int nn = 600000;
-
-    Matrix<int> indices(new int[query.rows*nn], query.rows, nn);
-    Matrix<float> dists(new float[query.rows*nn], query.rows, nn);
-
-
-
-	timeval start2, end2;
-
-	gettimeofday(&start2, 0);
-
-	//int count2 = index.knnSearch(query, indices, dists, nn, flann::SearchParams(FLANN_CHECKS_UNLIMITED));
-
-	std::cout << "\n---------- result ----------\n";
-	for (int c=0; c<indices.cols; c++) {
-		bloom_filter *filter = mgr.load_for_random_access( indices[0][c] );
-		std::vector<std::string>::iterator iter = filter->contains_all( stemmed_keywords.begin(), stemmed_keywords.end() );
-		if (stemmed_keywords.end() == iter) std::cout << indices[0][c] << " ";
-		//else std::cout << " - ";
-	}
-	std::cout << std::endl;
-
-	gettimeofday(&end2, 0);
-
-	long seconds2 = end2.tv_sec - start2.tv_sec;
-	long useconds2 = end2.tv_usec - start2.tv_usec;
-	std::cout << "Elapsed msecs = " << (seconds2 * 1000.0 + useconds2/1000.0) << std::endl; std::cout.flush();
-
-
-
-	std::cout << "\n---------- result ----------\n";
-	for (int c=0; c<indices.cols; c++) std::cout << dists[0][c] << " "; std::cout << std::endl;
-
-    delete[] dataset.ptr();
-    delete[] query.ptr();
-    delete[] indices.ptr();
-    delete[] dists.ptr();
-	*/
-    
     return 0;
 }
