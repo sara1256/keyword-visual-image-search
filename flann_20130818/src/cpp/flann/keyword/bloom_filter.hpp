@@ -493,6 +493,13 @@ public:
       return salt_.size();
    }
 
+   void statistics()
+   {
+      int num_zeros = 0;
+      for (std::size_t i = 0; i < raw_table_size_; ++i) if (int(bit_table_[i]) == 0) num_zeros++;
+	  std::cout << "number of zeros = " << num_zeros << " / " << raw_table_size_ << std::endl;
+   }
+
 //protected:
 public: // temporary modified by mojool
 

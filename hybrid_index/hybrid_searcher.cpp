@@ -32,7 +32,6 @@ int main(int argc, char** argv)
     int nn = 100;
 
     Matrix<float> query_tmp;
-    //load_from_file(query, "dataset.hdf5","query");
     load_from_file(query_tmp, "dataset.hdf5","query");
 
     Matrix<float> query(new float[query_tmp.cols], 1, query_tmp.cols);
@@ -40,7 +39,7 @@ int main(int argc, char** argv)
 		//query[0][c] = query_tmp[0][c];
 		//query[0][c] = dataset[290137][c];
 		query[0][c] = dataset[891749][c];
-		std::cout << query[0][c] << " ";
+		//std::cout << query[0][c] << " ";
 	}
 	std::cout << std::endl;
 
@@ -65,7 +64,8 @@ int main(int argc, char** argv)
 
 	gettimeofday(&start, 0);
 
-	int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(256));
+	//int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(256));
+	int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(128));
 
 	gettimeofday(&end, 0);
 

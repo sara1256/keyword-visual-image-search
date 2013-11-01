@@ -148,8 +148,8 @@ int main(int argc, char* argv[])
 	bloom_filter_manager mgr;
 
 	bloom_parameters param;
-	param.projected_element_count = 1000;
-	param.false_positive_probability = 1.0 / 100;
+	param.projected_element_count = 2500;
+	param.false_positive_probability = 1.0 / 1000;
 	param.random_seed = 1;
 	param.compute_optimal_parameters();
 
@@ -170,15 +170,15 @@ int main(int argc, char* argv[])
 		}
 
 		filter.insert(tags.begin(), tags.end());
-		std::cout << "Filter Size : " << filter.size() / (8 * 1024) << "KB" << std::endl;
+		//std::cout << "Filter Size : " << filter.size() / (8 * 1024) << "KB" << std::endl;
 
 		mgr.append(filter);
 
-		if (k == 0) break;
+		//if (k == 0) break;
 	}
 
 	mgr.save_for_serial_access(output_path_for_serial_access.c_str());
-	//mgr.save_for_random_access(output_path_for_random_access.c_str());
+	mgr.save_for_random_access(output_path_for_random_access.c_str());
 
 	return 0;
 }

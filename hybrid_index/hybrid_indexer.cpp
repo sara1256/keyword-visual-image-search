@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	//---------- load tags signatures from file ----------//
 	bloom_filter_manager signatures;
 
-	std::cout << "Loading signatures  : " << vlads_path << " ... "; std::cout.flush();
+	std::cout << "Loading signatures  : " << tags_path << " ... "; std::cout.flush();
 	signatures.load_for_serial_access( tags_path.c_str() );
 	std::cout << "Done." << std::endl; std::cout.flush();
 

@@ -691,12 +691,14 @@ private:
 
         /* Search once through each tree down to root. */
         for (i = 0; i < trees_; ++i) {
-            searchLevel2<with_removed>(result, vec, tree_roots_[i], keywords, 0, checkCount, maxCheck, epsError, heap, checked);
+            //searchLevel2<with_removed>(result, vec, tree_roots_[i], keywords, 0, checkCount, maxCheck, epsError, heap, checked);
+            searchLevel2<with_removed>(result, vec, tree_roots_[i], keywords, 0, checkCount, maxCheck, epsError, heap, checked, 0);
         }
 
         /* Keep searching other branches from heap until finished. */
         while ( heap->popMin(branch) && (checkCount < maxCheck || !result.full() )) {
-            searchLevel2<with_removed>(result, vec, branch.node, keywords, branch.mindist, checkCount, maxCheck, epsError, heap, checked);
+            //searchLevel2<with_removed>(result, vec, branch.node, keywords, branch.mindist, checkCount, maxCheck, epsError, heap, checked);
+            searchLevel2<with_removed>(result, vec, branch.node, keywords, branch.mindist, checkCount, maxCheck, epsError, heap, checked, 0);
         }
 
         delete heap;
@@ -762,8 +764,8 @@ private:
      */
     template<bool with_removed>
     void searchLevel2(ResultSet<DistanceType>& result_set, const ElementType* vec, NodePtr node, const std::vector<std::string> keywords, DistanceType mindist, int& checkCount, int maxCheck,
-                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked)
-//                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked) const
+                     //float epsError, Heap<BranchSt>* heap, DynamicBitset& checked)
+                     float epsError, Heap<BranchSt>* heap, DynamicBitset& checked, int depth)
     {
         if (result_set.worstDist()<mindist) {
             //			printf("Ignoring branch, too far\n");
@@ -775,17 +777,21 @@ private:
 		if (node->isleaf)
 		{
 			signature = saved_leaf_signatures_.load_for_random_access( node->signature_id );
+			std::cout << "depth LEAF = " << depth << " (" << node->signature_id << ")\t";
 		}
 		else
 		{
 			signature = saved_nonleaf_signatures_.load_for_random_access( node->signature_id );
+			std::cout << "depth = " << depth << " (" << node->signature_id << ")\t";
 		}
 
 		std::vector<std::string>::const_iterator iter = signature->contains_all(keywords.begin(), keywords.end());
 		if (keywords.end() != iter) {
             //			printf("Ignoring branch, keyword not found\n");
+			std::cout << std::endl;
 			return;
 		}
+		signature->statistics();
 
         /* If this is a leaf node, then do check and return. */
         if ((node->child1 == NULL)&&(node->child2 == NULL)) {
@@ -824,7 +830,8 @@ private:
         }
 
         /* Call recursively to search next level down. */
-        searchLevel2<with_removed>(result_set, vec, bestChild, keywords, mindist, checkCount, maxCheck, epsError, heap, checked);
+        //searchLevel2<with_removed>(result_set, vec, bestChild, keywords, mindist, checkCount, maxCheck, epsError, heap, checked);
+        searchLevel2<with_removed>(result_set, vec, bestChild, keywords, mindist, checkCount, maxCheck, epsError, heap, checked, depth+1);
     }
 
     /**
