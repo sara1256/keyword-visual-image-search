@@ -16,6 +16,11 @@
 
 using namespace flann;
 
+bool compare( std::pair<unsigned int, float> obj1, std::pair<unsigned int, float> obj2)
+{
+	return obj1.second < obj2.second;
+}
+
 int main(int argc, char** argv)
 {
 	//---------- check input arguments ----------//
@@ -77,6 +82,18 @@ int main(int argc, char** argv)
 
 	//---------- record time ----------//
 	gettimeofday(&end2, 0);
+
+	std::sort( result.begin(), result.end(), compare );
+
+	int nn = 100;
+
+	std::cout << "\n---------- result ----------\n";
+	for (int k=0; k<std::min(int(result.size()), 100); k++) std::cout << result[k].first << " ";
+	std::cout << std::endl;
+
+	std::cout << "\n---------- result ----------\n";
+	for (int k=0; k<std::min(int(result.size()), 100); k++) std::cout << result[k].second << " ";
+	std::cout << std::endl;
 
 	std::cout << "Elapsed msecs!! = " << get_elapsed_time_in_msecs(start2, end2) << std::endl; std::cout.flush();
 

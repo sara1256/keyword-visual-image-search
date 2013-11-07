@@ -17,7 +17,8 @@ int main(int argc, char** argv)
 	//---------- set data path ----------//
 	std::string base_path = "/media/mojool1984/research_storage/mirflickr1M_dataset/working/integrated/";
 	std::string vlads_path = base_path + "merged_vlads.hdf5";
-	std::string leaf_signature_path = base_path + "merged_tags_for_random_access.dat";
+	//std::string leaf_signature_path = base_path + "merged_tags_for_random_access.dat";
+	std::string leaf_signature_path = "merged_tags_for_random_access.dat";
 	std::string nonleaf_signature_path = "nonleaf_ok.dat";
 
 	//---------- load vlads from file ----------//
@@ -65,7 +66,7 @@ int main(int argc, char** argv)
 	gettimeofday(&start, 0);
 
 	//int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(256));
-	int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(128));
+	int num_results = index.knnSearch2(query, keywords, indices, dists, nn, flann::SearchParams(10));
 
 	gettimeofday(&end, 0);
 

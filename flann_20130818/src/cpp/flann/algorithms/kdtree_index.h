@@ -271,7 +271,6 @@ public:
 						const ElementType* vec,
 						const std::vector<std::string> keywords,
 						const SearchParams& searchParams)
-//						const SearchParams& searchParams) const
     {
         int maxChecks = searchParams.checks;
         float epsError = 1+searchParams.eps;
@@ -680,7 +679,6 @@ private:
 						const std::vector<std::string> keywords,
 						int maxCheck,
 						float epsError)
-//						float epsError) const
     {
         int i;
         BranchSt branch;
@@ -691,13 +689,11 @@ private:
 
         /* Search once through each tree down to root. */
         for (i = 0; i < trees_; ++i) {
-            //searchLevel2<with_removed>(result, vec, tree_roots_[i], keywords, 0, checkCount, maxCheck, epsError, heap, checked);
             searchLevel2<with_removed>(result, vec, tree_roots_[i], keywords, 0, checkCount, maxCheck, epsError, heap, checked, 0);
         }
 
         /* Keep searching other branches from heap until finished. */
         while ( heap->popMin(branch) && (checkCount < maxCheck || !result.full() )) {
-            //searchLevel2<with_removed>(result, vec, branch.node, keywords, branch.mindist, checkCount, maxCheck, epsError, heap, checked);
             searchLevel2<with_removed>(result, vec, branch.node, keywords, branch.mindist, checkCount, maxCheck, epsError, heap, checked, 0);
         }
 
@@ -778,17 +774,21 @@ private:
 		{
 			signature = saved_leaf_signatures_.load_for_random_access( node->signature_id );
 			//std::cout << "depth LEAF = " << depth << " (" << node->signature_id << ")\t";
+			//std::cout << "\tLEAF: " << node->signature_id << std::endl;
 		}
 		else
 		{
 			signature = saved_nonleaf_signatures_.load_for_random_access( node->signature_id );
 			//std::cout << "depth = " << depth << " (" << node->signature_id << ")\t";
+			//std::cout << "\tNONLEAF: " << node->signature_id << std::endl;
 		}
 
 		std::vector<std::string>::const_iterator iter = signature->contains_all(keywords.begin(), keywords.end());
 		if (keywords.end() != iter) {
             //			printf("Ignoring branch, keyword not found\n");
 			//std::cout << std::endl;
+			//if (node->isleaf) std::cout << "Leaf return: node_id = " << node->divfeat << ", depth = " << depth << std::endl;
+			//else std::cout << "Non-Leaf return : node_id = " << node->divfeat << ", depth = " << depth << std::endl;
 			return;
 		}
 		signature->statistics();

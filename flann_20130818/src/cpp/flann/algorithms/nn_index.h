@@ -402,7 +402,6 @@ public:
     		Matrix<DistanceType>& dists,
     		size_t knn,
     		const SearchParams& params)
-//    		const SearchParams& params) const
     {
     	assert(queries.cols == veclen());
     	assert(indices.rows >= queries.rows);
